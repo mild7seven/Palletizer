@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Pallet Tracker - Smart Logging</title>
+    <style>
+        body { font-family: system-ui, sans-serif; padding: 20px; max-width: 600px; margin: auto; background-color: #f4f7f6; }
+        .card { background: white; border: 1px solid #ddd; padding: 20px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        h2 { color: #333; text-align: center; }
+        .btn { padding: 12px 15px; background: #0056b3; color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; }
+        .btn-download { background: #28a745; margin-top: 15px; font-size: 16px; }
+        label { font-weight: bold; display: block; margin-top: 12px; font-size: 14px; color: #555; }
+        input, select { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 15px;}
+        .result-box { background: #343a40; color: white; padding: 15px; border-radius: 12px; text-align: center; margin-top: 20px; }
+        .result-box strong { font-size: 1.2em; color: #ffc107; }
+        .row { display: flex; gap: 10px; }
+        .row div { flex: 1; }
+    </style>
+</head>
+<body>
+
+    <h2>Shift Pallet Tracker</h2>
+
+    <div class="card">
+        <label>Nama Mesin / Line:</label>
+        <input type="text" id="namaMesin" placeholder="Contoh: Line A / Mesin 1">
+
+        <div class="row">
+            <div>
+                <label>Dinas/Shift:</label>
+                <select id="selectShift">
+                    <option value="pagi">Pagi</option>
+                    <option value="siang">Siang</option>
+                    <option value="malam">Malam</option>
+                </select>
+            </div>
+            <div>
+                <label>Grup:</label>
+                <select id="selectGrup">
+                    <option value="grup1">Grup 1</option>
+                    <option value="grup2">Grup 2</option>
+                    <option value="grup3">Grup 3</option>
+                </select>
+            </div>
+        </div>
+
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+
+        <label>Kode Barang:</label>
+        <input type="text" id="kodeBarang" placeholder="Contoh: PRD-001">
+
+        <label>Nama Produk:</label>
+        <input type="text" id="namaProduk" placeholder="Contoh: Silky Pudding Coklat">
+
+        <label>Kapasitas per Pallet:</label>
+        <select id="productSelect">
+            <option value="105">105 cs/pallet</option>
+            <option value="108">108 cs/pallet</option>
+            <option value="60">60 cs/pallet</option>
+        </select>
+
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+
+        <label>Sisa Belum Full (Shift Lalu):</label>
+        <input type="number" id="previousSisa" value="0">
+
+        <label>Hasil Produksi (Shift Ini):</label>
+        <input type="number" id="currentProduction" value="0">
+        
+        <button class="btn" style="margin-top: 15px;" onclick="calculateProduction()">HITUNG REKAP</button>
+    </div>
+
+    <div class="result-box">
+        <p>Total Pallet FULL: <strong id="resPallet">0</strong></p>
+        <p>Sisa Ke Shift Depan: <strong id="resSisa">0</strong> cs</p>
+    </div>
+
+    <button class="btn btn-download" onclick="downloadLog()">📥 DOWNLOAD LOG (.txt)</button>
+
+    <script>
+        let logData = "";
+
+        function calculateProduction() {
+            const mesin = document.getElementById('namaMesin').value || "-";
+            const shift = document.getElementById('selectShift').value.toUpperCase();
+            const grup = document.getElementById('selectGrup').value.toUpperCase();
+            const kode = document.getElementById('kodeBarang').value || "-";
+            const nama = document.getElementById('namaProduk').value || "-";
+
+            const capacity = parseInt(document.getElementById('productSelect').value);
+            const prevSisa = parseInt(document.getElementById('previousSisa').value) || 0;
+            const currentProd = parseInt(document.getElementById('currentProduction').value) || 0;
+
+            const totalCases = prevSisa + currentProd;
+            const fullPallets = Math.floor(totalCases / capacity);
+            const nextShiftSisa = totalCases % capacity;
+
+            document.getElementById('resPallet').innerText = fullPallets;
+            document.getElementById('resSisa').innerText = nextShiftSisa;
+
+            const timestamp = new Date().toLocaleString('id-ID');
+            logData = `DATA PRODUKSI [${shift} - ${grup}]\r\n`;
+            logData += `Waktu Input   : ${timestamp}\r\n`;
+            logData += `Mesin / Line  : ${mesin}\r\n`;
+            logData += `Item          : ${kode} - ${nama}\r\n`;
+            logData += `---------------------------\r\n`;
+            logData += `Kap. Pallet   : ${capacity} cs\r\n`;
+            logData += `Sisa Lalu     : ${prevSisa} cs\r\n`;
+            logData += `Prod. Sekarang: ${currentProd} cs\r\n`;
+            logData += `---------------------------\r\n`;
+            logData += `TOTAL CASES   : ${totalCases} cs\r\n`;
+            logData += `PALLET FULL   : ${fullPallets}\r\n`;
+            logData += `SISA WARISAN  : ${nextShiftSisa} cs\r\n`;
+            logData += `===========================\r\n`;
+        }
+
+        function downloadLog() {
+            if (!logData) {
+                alert("Silakan hitung rekap terlebih dahulu!");
+                return;
+            }
+
+            // Ambil nilai shift dan grup untuk penamaan file
+            const shiftVal = document.getElementById('selectShift').value; // pagi/siang/malam
+            const grupVal = document.getElementById('selectGrup').value;   // grup1/grup2/grup3
+            
+            // Format Tanggal yyyymmdd
+            const d = new Date();
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            const dateStr = `${yyyy}${mm}${dd}`;
+
+            // Nama File DIKEMBALIKAN ke format: dinas_grup_yyyymmdd.txt
+            const fileName = `${shiftVal}_${grupVal}_${dateStr}.txt`;
+
+            const blob = new Blob([logData], { type: "text/plain;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
