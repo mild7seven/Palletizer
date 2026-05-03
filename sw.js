@@ -1,56 +1,23 @@
-const CACHE_NAME = 'fg-tracker-v4';
-const ASSETS_TO_CACHE = [
+const CACHE_NAME = 'fg-enterprise-v7';
+const ASSETS = [
+  '/',
   'index.html',
   'manifest.json',
-  'sw.js',
-  // Menyimpan library PDF agar bisa export laporan saat Offline
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js'
+  'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js',
+  'https://cdn.jsdelivr.net/npm/chart.js',
+  'https://unpkg.com/html5-qrcode'
 ];
 
-// Pemasangan (Install) - Menyimpan semua aset ke memori lokal
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('SW: Menyimpan aset Finish Goods Tracker (v4) ke cache');
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
-  );
-  self.skipWaiting(); // Memaksa SW baru untuk langsung aktif
+self.addEventListener('install', (e) => {
+  e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
+  self.skipWaiting();
 });
 
-// Aktivasi (Activate) - Membersihkan cache dari versi sebelumnya
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            console.log('SW: Menghapus cache lama:', cache);
-            return caches.delete(cache);
-          }
-        })
-      );
-    })
-  );
-  self.clients.claim();
+self.addEventListener('activate', (e) => {
+  e.waitUntil(caches.keys().then((keys) => Promise.all(keys.map((k) => k !== CACHE_NAME && caches.delete(k)))));
 });
 
-// Pengambilan (Fetch) - Mengutamakan Cache agar responsif di area Blank Spot
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request).then((fetchResponse) => {
-        return caches.open(CACHE_NAME).then((cache) => {
-          // Hanya cache metode GET
-          if(event.request.method === 'GET' && event.request.url.startsWith('http')){
-            cache.put(event.request, fetchResponse.clone());
-          }
-          return fetchResponse;
-        });
-      });
-    }).catch(() => {
-      console.log('Aplikasi sedang berjalan offline.');
-    })
-  );
+self.addEventListener('fetch', (e) => {
+  e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request)));
 });

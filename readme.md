@@ -1,26 +1,17 @@
-# Finish Goods Tracker (PWA) 🏭📦
+# Finish Goods Tracker Enterprise v7.0 🚀
 
-Sistem informasi berbasis web (Progressive Web App) yang dirancang secara khusus untuk mendigitalkan aktivitas pencatatan *handover* (Work In Progress) produk Finish Goods antar shift di lantai pabrik. Mengusung desain *Industrial Modern* dengan struktur Data Tabel berkecepatan tinggi.
+Solusi industri terintegrasi untuk pelacakan produksi Finish Goods.
 
-## ✨ Fitur Unggulan
+## 🌟 Fitur Unggulan v7.0
+1. **Barcode Scanning:** Input SKU instan menggunakan kamera perangkat.
+2. **Cloud Sync:** Sinkronisasi otomatis ke Google Sheets via Apps Script Webhook.
+3. **Analytics Dashboard:** Tren grafik produksi 7 hari terakhir.
+4. **Copy Last Shift:** Efisiensi input dengan menyalin konfigurasi lini dari shift sebelumnya.
+5. **Target Monitoring:** Indikator progress bar visual (Aktual vs Target).
 
-- **Modul Master Data (Mini-MES):** Konfigurasi nama lini mesin, kode SKU, nama produk, dan standar kapasitas pallet secara mandiri. Data dapat ditambah, diedit, dan dihapus tanpa koding ulang.
-- **State-Driven Data Table:** Tampilan laporan produksi dalam wujud Tabel Dinamis per mesin. Dilengkapi fitur **RUBAH (Edit)** dan **HAPUS (Delete)** langsung di setiap baris tanpa merusak integritas sel lainnya.
-- **Auto-Fill & Validasi Pintar:** Saat SKU dipilih, kapasitas dus/pallet terisi otomatis. Sistem menolak ekspor *file* jika masih ada baris tabel dalam status belum tersimpan (kuning) untuk mencegah *data loss*.
-- **Traceability System:** Pengelompokan *Batch Shift Code* (M = Pagi, A = Siang, N = Malam) untuk setiap baris SKU.
-- **Offline-First & Auto-Save:** Kebal terhadap sinyal buruk (Blank Spot) berkat `Service Worker v4`. Data operator disimpan dalam bentuk *state-array* ke `localStorage` secara seketika.
-- **Multi-Format Export (Tanpa Server):** Ekspor laporan akhir shift didukung dalam tiga format universal:
-  - 📄 **TXT:** Laporan rekap cepat.
-  - 📊 **CSV:** Kompatibel penuh dengan Microsoft Excel untuk pengolahan tim PPIC/Data.
-  - 📑 **PDF:** Laporan formal bergaris menggunakan *jsPDF*.
-
-## 📂 Struktur Aplikasi
-
-Aplikasi ini menggunakan teknologi murni *Client-Side* (Vanilla JavaScript) sehingga sangat ringan dan tidak memerlukan pemeliharaan *database* SQL atau sewa *server backend*.
-
-```text
-📁 finish-goods-tracker/
-├── 📄 index.html      # UI Utama, State Management, Tabel Dinamis & Konfigurasi
-├── 📄 manifest.json   # Konfigurasi PWA (Tema Industrial Steel Blue & Icons)
-├── 📄 sw.js           # Service Worker v4 (Cache management & Offline PDF renderer)
-└── 📄 README.md       # Dokumentasi Proyek
+## 🔧 Integrasi Cloud (Google Sheets)
+1. Buat Google Sheets baru.
+2. Buka `Extensions` -> `Apps Script`.
+3. Gunakan fungsi `doPost(e)` untuk menerima JSON dan menulis ke baris sheet.
+4. Deploy sebagai Web App (Set access to 'Anyone').
+5. Masukkan URL hasil deploy ke Menu Setup di aplikasi ini.
