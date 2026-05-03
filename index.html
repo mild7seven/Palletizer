@@ -6,331 +6,263 @@
     <title>Factory Pallet Tracker</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0056b3">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
     <style>
-        body { font-family: system-ui, sans-serif; padding: 15px; max-width: 750px; margin: auto; background-color: #f4f7f6; }
-        .header-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; border-top: 4px solid #343a40; }
-        
-        .machine-block { background: #fff; border: 1px solid #ced4da; border-radius: 12px; padding: 15px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .machine-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0056b3; margin-bottom: 15px; padding-bottom: 10px; }
-        
-        .product-card { background: #f8f9fa; border: 1px solid #dee2e6; padding: 12px; border-radius: 8px; margin-bottom: 10px; position: relative; }
-        
-        .row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
-        .row div { flex: 1; min-width: 100px; }
+        body { font-family: system-ui, sans-serif; padding: 15px; max-width: 800px; margin: auto; background-color: #f4f7f6; }
+        .app-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #ccc; padding-bottom: 10px; }
+        #configPage, #trackerPage { display: none; }
+        .active-page { display: block !important; }
+        .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; border-top: 4px solid #343a40; }
+        .row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+        .row div { flex: 1; min-width: 120px; }
         label { font-weight: bold; font-size: 11px; color: #666; display: block; margin-bottom: 3px; text-transform: uppercase; }
         input, select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
-        
-        .btn { padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; }
-        .btn-add-machine { background: #343a40; color: white; margin-bottom: 20px; }
-        .btn-add-prod { background: #e7f3ff; color: #0056b3; border: 1px dashed #0056b3; font-size: 13px; }
-        .btn-calc { background: #0056b3; color: white; font-size: 16px; margin-top: 20px; }
-        .btn-download { background: #28a745; color: white; font-size: 16px; }
-        .btn-remove { background: #ff4d4d; color: white; padding: 4px 8px; font-size: 11px; border-radius: 4px; width: auto; margin-bottom: 0; }
-        .btn-reset { background: #dc3545; color: white; font-size: 14px; margin-top: 15px; border: 1px dashed #ffb3b3; }
-        
+        .btn { padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; transition: 0.2s; }
+        .btn-primary { background: #0056b3; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-dark { background: #343a40; color: white; }
+        .btn-outline { background: transparent; border: 1px solid #0056b3; color: #0056b3; }
+        .btn-sm { padding: 5px 10px; font-size: 11px; width: auto; margin: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f8f9fa; }
+        .machine-block { background: #fff; border: 1px solid #ced4da; border-radius: 12px; padding: 15px; margin-bottom: 25px; }
+        .machine-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0056b3; margin-bottom: 15px; padding-bottom: 5px; }
+        .product-card { background: #f8f9fa; border: 1px solid #dee2e6; padding: 12px; border-radius: 8px; margin-bottom: 10px; }
         .result-tag { background: #fff3cd; padding: 8px; border-radius: 5px; margin-top: 8px; font-size: 12px; border: 1px solid #ffeeba; }
-        .auto-save-indicator { text-align: center; font-size: 11px; color: #28a745; font-weight: bold; margin-bottom: 15px; display: none; }
+        .auto-save-indicator { text-align: center; font-size: 11px; color: #28a745; font-weight: bold; margin-bottom: 10px; display: none; }
+        
+        /* Box Download */
+        .download-section { background: #f1f3f5; padding: 15px; border-radius: 8px; margin-top: 20px; border: 1px solid #dee2e6; }
     </style>
 </head>
 <body>
 
-    <h2 style="text-align: center; color: #333; margin-bottom: 5px;">Factory Pallet Tracker</h2>
-    <div id="saveIndicator" class="auto-save-indicator">✓ Draft Tersimpan Otomatis</div>
+    <div class="app-header">
+        <h2>Factory Pallet Tracker</h2>
+    </div>
 
-    <div class="header-card">
-        <div class="row">
-            <div>
-                <label>Dinas/Shift:</label>
-                <select id="selectShift">
-                    <option value="pagi">Pagi</option>
-                    <option value="siang">Siang</option>
-                    <option value="malam">Malam</option>
-                </select>
+    <div id="configPage" class="active-page">
+        <button class="btn btn-primary" onclick="switchPage('trackerPage')" style="font-size: 18px;">▶ MULAI REKAP (TRACKING)</button>
+        <div class="card" style="margin-top:20px">
+            <h4>⚙️ Konfigurasi Master Mesin</h4>
+            <div class="row">
+                <div style="flex:3"><input type="text" id="confMesin" placeholder="Nama Mesin"></div>
+                <div><button class="btn btn-dark" onclick="saveMasterMesin()">+ Tambah</button></div>
             </div>
-            <div>
-                <label>Grup:</label>
-                <select id="selectGrup">
-                    <option value="grup1">Grup 1</option>
-                    <option value="grup2">Grup 2</option>
-                    <option value="grup3">Grup 3</option>
-                </select>
+            <table id="tableMesin"><tbody></tbody></table>
+        </div>
+        <div class="card">
+            <h4>⚙️ Konfigurasi Master Produk</h4>
+            <div class="row">
+                <div><label>Kode</label><input type="text" id="confKode"></div>
+                <div style="flex:2"><label>Nama Produk</label><input type="text" id="confNamaProd"></div>
+                <div><label>Isi/Pallet</label><input type="number" id="confKap"></div>
             </div>
+            <button class="btn btn-dark" onclick="saveMasterProduk()">+ Tambah Produk</button>
+            <table id="tableProduk"><tbody></tbody></table>
         </div>
     </div>
 
-    <div id="mainContainer"></div>
+    <div id="trackerPage">
+        <button class="btn btn-outline" onclick="switchPage('configPage')">⚙️ Menu Konfigurasi</button>
+        <div id="saveIndicator" class="auto-save-indicator">✓ Tersimpan</div>
 
-    <button class="btn btn-add-machine" onclick="addMachineBlock()">+ TAMBAH MESIN</button>
-    <button class="btn btn-calc" onclick="calculateAll()">🧮 HITUNG SEMUA REKAP</button>
-    <button class="btn btn-download" onclick="downloadLog()">📥 DOWNLOAD LOG (.txt)</button>
-    <button class="btn btn-reset" onclick="resetForm()">🗑️ RESET FORM (MULAI SHIFT BARU)</button>
+        <div class="card">
+            <div class="row">
+                <div><label>Shift:</label><select id="selectShift"><option value="pagi">Pagi</option><option value="siang">Siang</option><option value="malam">Malam</option></select></div>
+                <div><label>Grup:</label><select id="selectGrup"><option value="grup1">Grup 1</option><option value="grup2">Grup 2</option><option value="grup3">Grup 3</option></select></div>
+            </div>
+        </div>
+
+        <div id="mainContainer"></div>
+        <button class="btn btn-dark" onclick="addMachineBlock()">+ TAMBAH MESIN</button>
+
+        <div class="download-section">
+            <label style="font-size: 14px; margin-bottom: 8px;">Pilih Format File Download:</label>
+            <div class="row">
+                <select id="exportFormat" style="flex: 2;">
+                    <option value="txt">File Teks (.txt)</option>
+                    <option value="csv">Excel CSV (.csv)</option>
+                    <option value="pdf">Dokumen PDF (.pdf)</option>
+                </select>
+                <button class="btn btn-success" style="flex: 1; margin: 0;" onclick="exportData()">📥 DOWNLOAD</button>
+            </div>
+        </div>
+        
+        <button class="btn btn-danger" onclick="resetForm()" style="margin-top: 30px;">🗑️ RESET SEMUA DATA SHIFT</button>
+    </div>
 
     <script>
-        const VARIANT_MAP = {
-            "K1": ["KCP 200g", "Kuah Bakso 100g", "Ayam 460g", "Sapi 460g"],
-            "Syntegon / Ilapak": ["KCP 1kg", "Ayam 1kg", "Sapi 1kg", "Rostip 1kg"],
-            "BP123": ["Sapi 94g", "Ayam 94g", "Natuna 36g"],
-            "Kingpack": ["Ayam 210g", "Sapi 210g"],
-            "Lainnya": []
-        };
+        // MASTER DATA
+        let masterMesin = JSON.parse(localStorage.getItem('masterMesin')) || ["K1", "Syntegon", "BP123", "Kingpack"];
+        let masterProduk = JSON.parse(localStorage.getItem('masterProduk')) || [
+            { id: "p1", kode: "KCP", nama: "KCP 200g", kap: 105 },
+            { id: "p2", kode: "KB", nama: "Kuah Bakso 100g", kap: 108 }
+        ];
 
-        let logData = "";
-        let saveTimeout;
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error:', err));
-            });
+        function renderConfig() {
+            const tMesin = document.querySelector('#tableMesin tbody');
+            tMesin.innerHTML = masterMesin.map((m, i) => `<tr><td>${m}</td><td><button class="btn btn-danger btn-sm" onclick="masterMesin.splice(${i},1);renderConfig()">Hapus</button></td></tr>`).join('');
+            const tProduk = document.querySelector('#tableProduk tbody');
+            tProduk.innerHTML = masterProduk.map((p, i) => `<tr><td>${p.kode}</td><td>${p.nama}</td><td>${p.kap}</td><td><button class="btn btn-danger btn-sm" onclick="masterProduk.splice(${i},1);renderConfig()">Hapus</button></td></tr>`).join('');
+            localStorage.setItem('masterMesin', JSON.stringify(masterMesin));
+            localStorage.setItem('masterProduk', JSON.stringify(masterProduk));
         }
 
-        document.addEventListener('input', triggerAutoSave);
-        document.addEventListener('change', triggerAutoSave);
-
-        function triggerAutoSave() {
-            clearTimeout(saveTimeout);
-            saveTimeout = setTimeout(saveState, 500); 
+        function saveMasterMesin() {
+            const v = document.getElementById('confMesin').value;
+            if(v) { masterMesin.push(v); document.getElementById('confMesin').value=""; renderConfig(); }
         }
 
+        function saveMasterProduk() {
+            const k = document.getElementById('confKode').value;
+            const n = document.getElementById('confNamaProd').value;
+            const c = document.getElementById('confKap').value;
+            if(k && n && c) { masterProduk.push({id:"p-"+Date.now(), kode:k, nama:n, kap:parseInt(c)}); renderConfig(); }
+        }
+
+        function switchPage(p) {
+            document.getElementById('configPage').classList.remove('active-page');
+            document.getElementById('trackerPage').classList.remove('active-page');
+            document.getElementById(p).classList.add('active-page');
+            if(p === 'trackerPage') updateAllDropdowns();
+        }
+
+        // TRACKER LOGIC
+        function updateAllDropdowns() {
+            document.querySelectorAll('.m-type').forEach(s => { const v = s.value; s.innerHTML = masterMesin.map(m=>`<option value="${m}">${m}</option>`).join(''); s.value = v; });
+            document.querySelectorAll('.p-nama').forEach(s => { const v = s.value; s.innerHTML = masterProduk.map(p=>`<option value="${p.id}">[${p.kode}] ${p.nama}</option>`).join(''); s.value = v; });
+        }
+
+        function addMachineBlock(isRestore = false) {
+            const id = "m-" + Date.now() + Math.random();
+            const div = document.createElement('div');
+            div.className = 'machine-block'; div.id = id;
+            div.innerHTML = `<div class="machine-header"><select class="m-type" style="width:70%">${masterMesin.map(m=>`<option value="${m}">${m}</option>`).join('')}</select><button class="btn btn-danger btn-sm" onclick="this.closest('.machine-block').remove();saveState()">Hapus</button></div><div class="plist"></div><button class="btn btn-outline" style="font-size:11px" onclick="addProduct('${id}')">+ Tambah Produk</button>`;
+            document.getElementById('mainContainer').appendChild(div);
+            if(!isRestore) addProduct(id);
+            return id;
+        }
+
+        function addProduct(mid, isRestore = false) {
+            const plist = document.querySelector(`#${mid.replace(/\./g, "\\.")} .plist`);
+            const div = document.createElement('div');
+            div.className = 'product-card';
+            div.innerHTML = `<div class="row">
+                <select class="p-nama" onchange="autoFill(this)" style="flex:2">${masterProduk.map(p=>`<option value="${p.id}">[${p.kode}] ${p.nama}</option>`).join('')}</select>
+                <select class="p-kode" style="flex:0.5"><option value="M">M</option><option value="A">A</option><option value="N">N</option></select>
+                <input type="number" class="p-kap" placeholder="Isi" style="flex:0.5">
+            </div>
+            <div class="row">
+                <div><label>Sisa Lalu</label><input type="number" class="p-sisa" value="0"></div>
+                <div><label>Prod Baru</label><input type="number" class="p-baru" value="0"></div>
+            </div>`;
+            plist.appendChild(div);
+            if(!isRestore) autoFill(div.querySelector('.p-nama'));
+            return div;
+        }
+
+        function autoFill(s) {
+            const p = masterProduk.find(x => x.id === s.value);
+            if(p) s.closest('.product-card').querySelector('.p-kap').value = p.kap;
+            saveState();
+        }
+
+        // SAVE & EXPORT
         function saveState() {
-            const state = {
-                shift: document.getElementById('selectShift').value,
-                grup: document.getElementById('selectGrup').value,
-                machines: []
-            };
-
-            const blocks = document.querySelectorAll('.machine-block');
-            blocks.forEach(block => {
-                const mType = block.querySelector('.m-type').value;
-                const products = [];
-                
-                block.querySelectorAll('.product-card').forEach(card => {
-                    products.push({
-                        nama: card.querySelector('.p-nama').value,
-                        kodeWaktu: card.querySelector('.p-kode').value, // Auto-save kode M/A/N
-                        kap: card.querySelector('.p-kap').value,
-                        sisa: card.querySelector('.p-sisa').value,
-                        baru: card.querySelector('.p-baru').value
-                    });
+            const data = { shift: document.getElementById('selectShift').value, grup: document.getElementById('selectGrup').value, machines: [] };
+            document.querySelectorAll('.machine-block').forEach(b => {
+                const m = { type: b.querySelector('.m-type').value, prods: [] };
+                b.querySelectorAll('.product-card').forEach(c => {
+                    m.prods.push({ id: c.querySelector('.p-nama').value, kode: c.querySelector('.p-kode').value, kap: c.querySelector('.p-kap').value, sisa: c.querySelector('.p-sisa').value, baru: c.querySelector('.p-baru').value });
                 });
-                state.machines.push({ type: mType, products: products });
+                data.machines.push(m);
             });
-
-            localStorage.setItem('factoryTrackerData', JSON.stringify(state));
-            
-            const indicator = document.getElementById('saveIndicator');
-            indicator.style.display = 'block';
-            setTimeout(() => { indicator.style.display = 'none'; }, 2000);
+            localStorage.setItem('factoryTrackerData', JSON.stringify(data));
+            document.getElementById('saveIndicator').style.display='block';
+            setTimeout(()=>document.getElementById('saveIndicator').style.display='none', 1000);
         }
 
         function loadState() {
-            const savedData = localStorage.getItem('factoryTrackerData');
-            
-            if (savedData) {
-                try {
-                    const state = JSON.parse(savedData);
-                    document.getElementById('selectShift').value = state.shift || 'pagi';
-                    document.getElementById('selectGrup').value = state.grup || 'grup1';
-                    
-                    document.getElementById('mainContainer').innerHTML = ''; 
-                    
-                    if (state.machines && state.machines.length > 0) {
-                        state.machines.forEach(m => {
-                            const mId = addMachineBlock(true); 
-                            const mBlock = document.getElementById(mId);
-                            mBlock.querySelector('.m-type').value = m.type;
-                            updateVarianDropdown(mId);
-                            
-                            m.products.forEach(p => {
-                                const pCard = addProductToMachine(mId, true);
-                                pCard.querySelector('.p-nama').value = p.nama;
-                                pCard.querySelector('.p-kode').value = p.kodeWaktu || 'M'; // Load kode M/A/N
-                                pCard.querySelector('.p-kap').value = p.kap;
-                                pCard.querySelector('.p-sisa').value = p.sisa;
-                                pCard.querySelector('.p-baru').value = p.baru;
-                            });
-                        });
-                    } else {
-                        addMachineBlock(); 
-                    }
-                } catch (e) {
-                    console.error("Gagal load data tersimpan", e);
-                    addMachineBlock();
-                }
-            } else {
-                addMachineBlock(); 
-            }
-        }
-
-        function resetForm() {
-            if (confirm("YAKIN INGIN RESET?\\n\\nSemua data yang belum di-download akan hilang. Gunakan ini hanya untuk memulai shift baru.")) {
-                localStorage.removeItem('factoryTrackerData'); 
-                location.reload(); 
-            }
-        }
-
-        function addMachineBlock(isRestoring = false) {
-            const container = document.getElementById('mainContainer');
-            const machineId = "m-" + Date.now() + Math.floor(Math.random() * 1000); 
-            const block = document.createElement('div');
-            block.className = 'machine-block';
-            block.id = machineId;
-            
-            block.innerHTML = `
-                <div class="machine-header">
-                    <div style="flex:2; margin-right:10px;">
-                        <label>Pilih Mesin:</label>
-                        <select class="m-type" onchange="updateVarianDropdown('${machineId}')">
-                            <option value="K1">Mesin K1</option>
-                            <option value="Syntegon / Ilapak">Mesin Syntegon / Ilapak</option>
-                            <option value="BP123">Mesin BP123</option>
-                            <option value="Kingpack">Mesin Kingpack</option>
-                            <option value="Lainnya">Mesin Lainnya</option>
-                        </select>
-                    </div>
-                    <button class="btn-remove" onclick="removeMachine('${machineId}')">Hapus Mesin</button>
-                </div>
-                <div class="product-list-container"></div>
-                <button class="btn btn-add-prod" onclick="addProductToMachine('${machineId}')">+ Tambah Produk di Mesin Ini</button>
-            `;
-            container.appendChild(block);
-            
-            if (!isRestoring) {
-                addProductToMachine(machineId); 
-                triggerAutoSave();
-            }
-            return machineId;
-        }
-
-        function removeMachine(machineId) {
-            document.getElementById(machineId).remove();
-            triggerAutoSave();
-        }
-
-        function addProductToMachine(machineId, isRestoring = false) {
-            const machineBlock = document.getElementById(machineId);
-            const listContainer = machineBlock.querySelector('.product-list-container');
-            const machineType = machineBlock.querySelector('.m-type').value;
-            
-            const prodCard = document.createElement('div');
-            prodCard.className = 'product-card';
-            
-            let options = VARIANT_MAP[machineType].map(v => `<option value="${v}">${v}</option>`).join('');
-            if (machineType === "Lainnya") options = `<option value="Manual">Input Manual...</option>`;
-
-            // Menambahkan Dropdown "Kode Waktu" (M, A, N)
-            prodCard.innerHTML = `
-                <div class="row">
-                    <div style="flex:2; min-width: 140px;">
-                        <label>Varian Produk:</label>
-                        <select class="p-nama">${options}</select>
-                    </div>
-                    <div style="flex:1; min-width: 80px;">
-                        <label>Kode:</label>
-                        <select class="p-kode">
-                            <option value="M">M (Pagi)</option>
-                            <option value="A">A (Siang)</option>
-                            <option value="N">N (Malam)</option>
-                        </select>
-                    </div>
-                    <div style="flex:1; min-width: 80px;">
-                        <label>Isi/Pallet:</label>
-                        <input type="number" class="p-kap" value="105">
-                    </div>
-                </div>
-                <div class="row">
-                    <div><label>Sisa Lalu:</label><input type="number" class="p-sisa" value="0"></div>
-                    <div><label>Prod. Baru:</label><input type="number" class="p-baru" value="0"></div>
-                </div>
-                <div class="result-tag" style="display:none"></div>
-                <button class="btn-remove" style="margin-top:5px; background:#aaa" onclick="removeProduct(this)">Hapus Item</button>
-            `;
-            listContainer.appendChild(prodCard);
-            
-            if (!isRestoring) triggerAutoSave();
-            return prodCard;
-        }
-
-        function removeProduct(buttonElement) {
-            buttonElement.parentElement.remove();
-            triggerAutoSave();
-        }
-
-        function updateVarianDropdown(machineId) {
-            const machineBlock = document.getElementById(machineId);
-            const machineType = machineBlock.querySelector('.m-type').value;
-            const allProdSelects = machineBlock.querySelectorAll('.p-nama');
-            
-            let options = VARIANT_MAP[machineType].map(v => `<option value="${v}">${v}</option>`).join('');
-            if (machineType === "Lainnya") options = `<option value="Manual">Input Manual...</option>`;
-            
-            allProdSelects.forEach(select => {
-                select.innerHTML = options;
+            const d = JSON.parse(localStorage.getItem('factoryTrackerData'));
+            if(!d) { addMachineBlock(); return; }
+            document.getElementById('selectShift').value = d.shift; document.getElementById('selectGrup').value = d.grup;
+            d.machines.forEach(m => {
+                const mid = addMachineBlock(true);
+                document.querySelector(`#${mid.replace(/\./g, "\\.")} .m-type`).value = m.type;
+                m.prods.forEach(p => {
+                    const c = addProduct(mid, true);
+                    c.querySelector('.p-nama').value = p.id; c.querySelector('.p-kode').value = p.kode;
+                    c.querySelector('.p-kap').value = p.kap; c.querySelector('.p-sisa').value = p.sisa; c.querySelector('.p-baru').value = p.baru;
+                });
             });
-            triggerAutoSave();
         }
 
-        function calculateAll() {
+        function exportData() {
+            const format = document.getElementById('exportFormat').value;
             const shift = document.getElementById('selectShift').value.toUpperCase();
             const grup = document.getElementById('selectGrup').value.toUpperCase();
-            const timestamp = new Date().toLocaleString('id-ID');
+            const date = new Date();
+            const dateStr = date.toLocaleDateString('id-ID') + " " + date.toLocaleTimeString('id-ID');
+            const fileDate = date.getFullYear() + String(date.getMonth() + 1).padStart(2, '0') + String(date.getDate()).padStart(2, '0');
+            const fileName = `${shift.toLowerCase()}_${grup.toLowerCase()}_${fileDate}`;
 
-            logData = `=== LAPORAN PRODUKSI [${shift} - ${grup}] ===\r\n`;
-            logData += `Waktu : ${timestamp}\r\n`;
-            logData += `==============================================\r\n\r\n`;
-
-            const machineBlocks = document.querySelectorAll('.machine-block');
-            
-            machineBlocks.forEach((block, mIdx) => {
-                const mName = block.querySelector('.m-type').value;
-                logData += `MESIN: ${mName.toUpperCase()}\r\n`;
-                logData += `----------------------------------------------\r\n`;
-
-                const prodCards = block.querySelectorAll('.product-card');
-                prodCards.forEach((card, pIdx) => {
-                    const nama = card.querySelector('.p-nama').value;
-                    const kodeWaktu = card.querySelector('.p-kode').value; // Mengambil data kode
-                    const kap = parseInt(card.querySelector('.p-kap').value) || 1;
-                    const sisa = parseInt(card.querySelector('.p-sisa').value) || 0;
-                    const baru = parseInt(card.querySelector('.p-baru').value) || 0;
-
-                    const total = sisa + baru;
-                    const full = Math.floor(total / kap);
-                    const sisaNext = total % kap;
-
-                    // Tag Hasil di Layar
-                    const resTag = card.querySelector('.result-tag');
-                    resTag.style.display = 'block';
-                    resTag.innerHTML = `Hasil: <b>${total} cs</b> (${full} Pallet Full, Sisa ${sisaNext} cs)`;
-
-                    // Format Log .txt
-                    logData += `${pIdx+1}. ${nama} [Kode: ${kodeWaktu}]\r\n`;
-                    logData += `   Kapasitas: ${kap} | Sisa Lalu: ${sisa} | Prod: ${baru}\r\n`;
-                    logData += `   TOTAL: ${total} cs -> FULL: ${full} | SISA: ${sisaNext}\r\n\r\n`;
+            let rows = [];
+            document.querySelectorAll('.machine-block').forEach(b => {
+                const mName = b.querySelector('.m-type').value;
+                b.querySelectorAll('.product-card').forEach(c => {
+                    const pMaster = masterProduk.find(x => x.id === c.querySelector('.p-nama').value);
+                    const n = pMaster ? pMaster.nama : "?";
+                    const k = c.querySelector('.p-kode').value;
+                    const cp = parseInt(c.querySelector('.p-kap').value) || 1;
+                    const s = parseInt(c.querySelector('.p-sisa').value) || 0;
+                    const br = parseInt(c.querySelector('.p-baru').value) || 0;
+                    const tot = s + br;
+                    rows.push({ mesin: mName, produk: n, kode: k, kap: cp, sisa: s, baru: br, total: tot, full: Math.floor(tot/cp), sisa_next: tot%cp });
                 });
-                logData += `\r\n`;
             });
-            alert("Kalkulasi per produk selesai!");
+
+            if(format === 'txt') {
+                let txt = `LAPORAN PRODUKSI [${shift} - ${grup}]\nDicetak: ${dateStr}\n\n`;
+                rows.forEach((r, i) => {
+                    txt += `${i+1}. ${r.produk} [${r.kode}] - Mesin: ${r.mesin}\n   Total: ${r.total} cs | Full: ${r.full} Pallet | Sisa: ${r.sisa_next} cs\n\n`;
+                });
+                downloadBlob(txt, fileName + ".txt", "text/plain");
+            } 
+            else if(format === 'csv') {
+                let csv = "Mesin,Produk,Shift_Kode,Isi/Pallet,Sisa_Lalu,Prod_Baru,Total_CS,Full_Pallet,Sisa_Waris\n";
+                rows.forEach(r => {
+                    csv += `"${r.mesin}","${r.produk}","${r.kode}",${r.kap},${r.sisa},${r.baru},${r.total},${r.full},${r.sisa_next}\n`;
+                });
+                downloadBlob(csv, fileName + ".csv", "text/csv");
+            }
+            else if(format === 'pdf') {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.text(`LAPORAN PRODUKSI: ${shift} - ${grup}`, 14, 15);
+                doc.setFontSize(10); doc.text(`Waktu: ${dateStr}`, 14, 22);
+                const tableData = rows.map(r => [r.mesin, r.produk, r.kode, r.total, r.full, r.sisa_next]);
+                doc.autoTable({ head: [['Mesin', 'Produk', 'Kode', 'Total cs', 'Full Pallet', 'Sisa cs']], body: tableData, startY: 28 });
+                doc.save(fileName + ".pdf");
+            }
         }
 
-        function downloadLog() {
-            if (!logData) { alert("Hitung rekap dulu!"); return; }
-            const shiftVal = document.getElementById('selectShift').value;
-            const grupVal = document.getElementById('selectGrup').value;
-            const d = new Date();
-            const dateStr = d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
-            const fileName = `${shiftVal}_${grupVal}_${dateStr}.txt`;
-
-            const blob = new Blob([logData], { type: "text/plain;charset=utf-8" });
+        function downloadBlob(content, name, type) {
+            const blob = new Blob([content], { type: type });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url; a.download = fileName;
-            document.body.appendChild(a); a.click(); document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            const a = document.createElement("a"); a.href = url; a.download = name;
+            a.click(); URL.revokeObjectURL(url);
         }
 
-        window.onload = () => { 
-            loadState(); 
-        };
+        function resetForm() { if(confirm("Hapus data shift ini?")) { localStorage.removeItem('factoryTrackerData'); location.reload(); } }
+        document.addEventListener('input', saveState);
+        window.onload = () => { renderConfig(); loadState(); };
     </script>
 </body>
 </html>
+
