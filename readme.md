@@ -1,28 +1,25 @@
-# Factory Pallet Tracker (PWA) 🏭📦
+# Finish Goods Tracker (PWA) 🏭📦
 
-Aplikasi berbasis web (Progressive Web App / PWA) yang dirancang khusus untuk area lantai produksi (Shop Floor). Aplikasi ini mendigitalkan proses pencatatan *handover* (serah terima) sisa produk yang belum mencapai 1 pallet penuh antar shift produksi (Work In Progress/WIP).
+Sistem informasi berbasis web (Progressive Web App) yang dirancang secara khusus untuk mendigitalkan aktivitas pencatatan *handover* (Work In Progress) produk Finish Goods antar shift di lantai pabrik. Mengusung desain *Industrial Modern*, aplikasi ini mengedepankan fungsionalitas, visibilitas, dan kemudahan bagi operator produksi.
 
-Dengan sistem *Offline-First* dan *Auto-Save*, aplikasi ini sangat tangguh digunakan di area pabrik yang minim koneksi internet (blank spot) dan mencegah hilangnya data akibat *human error*.
+## ✨ Fitur Unggulan
 
-## ✨ Fitur Utama
+- **Modul Master Data (Mini-MES):** Konfigurasi nama lini mesin, kode SKU, nama produk, dan standar kapasitas pallet secara mandiri. Data dapat diedit atau dihapus secara dinamis langsung dari antarmuka.
+- **Auto-Fill & Live Rekap:** Saat SKU dipilih, kapasitas dus/pallet akan otomatis terisi. Hasil kalkulasi (*Total Cases, Full Pallet, Sisa Handover*) ditampilkan secara **Real-Time** (*Live*) tanpa perlu menunggu tombol hitung ditekan.
+- **Traceability System:** Dilengkapi dengan *dropdown* Batch Shift Code (M = Morning, A = Afternoon, N = Night) untuk setiap baris produk demi keterlacakan.
+- **Offline-First & Auto-Save:** Memanfaatkan `Service Worker` dan `localStorage`, sistem ini kebal terhadap sinyal buruk (Blank Spot) di area mesin. Data operator yang belum dikirim akan aman tersimpan meskipun *browser* tertutup.
+- **Multi-Format Export (Tanpa Server):** Ekspor laporan akhir shift didukung dalam tiga format universal:
+  - 📄 **TXT:** Laporan rekap cepat.
+  - 📊 **CSV:** Kompatibel penuh dengan Microsoft Excel untuk pengolahan tim PPIC/Data.
+  - 📑 **PDF:** Laporan formal (menggunakan jsPDF) untuk diserahkan ke *Supervisor* atau diarsipkan.
 
-- **Master Data Dinamis:** Penambahan nama mesin, kode produk, dan kapasitas dus/pallet dapat dikonfigurasi langsung dari antarmuka aplikasi tanpa perlu mengubah kode sumber.
-- **Otomatisasi Kalkulasi:** Menghitung total *cases* (dus), membaginya menjadi jumlah *Full Pallet*, dan menampilkan sisa *cases* yang akan dilanjutkan oleh shift berikutnya.
-- **Multi-Mesin & Multi-Produk:** Mendukung pelacakan beberapa lini mesin yang berjalan secara paralel dengan varian produk yang berbeda-beda. Termasuk penandaan kode *batch* waktu (M/A/N).
-- **Auto-Save (Local Storage):** Setiap ketikan operator akan langsung disimpan secara lokal. Data tidak akan hilang meskipun tab *browser* tertutup secara tidak sengaja atau halaman ter-*refresh*.
-- **Multi-Format Export:** Log hasil rekapitulasi shift dapat diunduh tanpa koneksi internet ke dalam format:
-  - `.txt` (Log teks sederhana)
-  - `.csv` (Untuk olah data di Microsoft Excel)
-  - `.pdf` (Laporan formal dengan tabel otomatis)
-- **PWA Ready:** Dapat di-*install* langsung ke *homescreen* Android, iOS, maupun Windows (via Chrome/Edge), terasa seperti aplikasi *native*.
+## 📂 Struktur Aplikasi
 
-## 📂 Struktur File
-
-Proyek ini menggunakan arsitektur Vanilla JavaScript tanpa *framework* berat (Zero Dependencies), memastikan aplikasi berjalan sangat ringan di perangkat operasional standar.
+Aplikasi ini menggunakan teknologi murni *Client-Side* (Vanilla JavaScript) sehingga sangat ringan dan tidak memerlukan pemeliharaan *database* SQL atau sewa *server backend*.
 
 ```text
-📁 factory-pallet-tracker/
-├── 📄 index.html      # Antarmuka utama (UI), logika kalkulasi, & manajemen LocalStorage
-├── 📄 manifest.json   # Konfigurasi identitas PWA (Nama, Tema Warna, Ikon)
-├── 📄 sw.js           # Service Worker untuk *caching* aset (Offline Support)
-└── 📄 README.md       # Dokumentasi proyek ini
+📁 finish-goods-tracker/
+├── 📄 index.html      # Antarmuka (UI), Sistem Logika, Mode Edit, Master Data
+├── 📄 manifest.json   # Konfigurasi PWA (Tema Industrial Steel Blue & Icons)
+├── 📄 sw.js           # Service Worker (Cache management & Offline PDF renderer)
+└── 📄 README.md       # Dokumentasi Proyek

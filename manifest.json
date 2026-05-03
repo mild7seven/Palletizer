@@ -1,19 +1,19 @@
 {
-  "name": "Factory Pallet Tracker",
-  "short_name": "FactoryTracker",
+  "name": "Finish Goods Tracker",
+  "short_name": "FG Tracker",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#f4f7f6",
-  "theme_color": "#0056b3",
-  "description": "Sistem monitoring pallet produksi multi-mesin dan multi-varian.",
+  "background_color": "#f0f2f5",
+  "theme_color": "#2c3e50",
+  "description": "Sistem Monitoring Output Produksi Finish Goods",
   "icons": [
     {
-      "src": "https://via.placeholder.com/192/0056b3/ffffff?text=FT",
+      "src": "https://via.placeholder.com/192/2c3e50/ffffff?text=FG",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "https://via.placeholder.com/512/0056b3/ffffff?text=FactoryTracker",
+      "src": "https://via.placeholder.com/512/2c3e50/ffffff?text=FG+Tracker",
       "sizes": "512x512",
       "type": "image/png"
     }
