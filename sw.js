@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fg-tracker-v3';
+const CACHE_NAME = 'fg-tracker-v4';
 const ASSETS_TO_CACHE = [
   'index.html',
   'manifest.json',
@@ -12,14 +12,14 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('SW: Menyimpan aset Finish Goods Tracker ke cache');
+      console.log('SW: Menyimpan aset Finish Goods Tracker (v4) ke cache');
       return cache.addAll(ASSETS_TO_CACHE);
     })
   );
   self.skipWaiting(); // Memaksa SW baru untuk langsung aktif
 });
 
-// Aktivasi (Activate) - Membersihkan cache dari versi sebelumnya (v1, v2)
+// Aktivasi (Activate) - Membersihkan cache dari versi sebelumnya
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -41,9 +41,8 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
       return response || fetch(event.request).then((fetchResponse) => {
-        // Simpan cache baru jika ada request yang belum terdaftar (opsional)
         return caches.open(CACHE_NAME).then((cache) => {
-          // Jangan cache jika request bukan metode GET (seperti ekstensi chrome)
+          // Hanya cache metode GET
           if(event.request.method === 'GET' && event.request.url.startsWith('http')){
             cache.put(event.request, fetchResponse.clone());
           }
@@ -51,7 +50,6 @@ self.addEventListener('fetch', (event) => {
         });
       });
     }).catch(() => {
-      // Jika offline dan aset tidak ada di cache, biarkan PWA menangani
       console.log('Aplikasi sedang berjalan offline.');
     })
   );

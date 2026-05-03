@@ -21,94 +21,43 @@
             --white: #ffffff;
         }
 
-        body { 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            padding: 0; margin: 0; background-color: var(--bg); color: var(--primary);
-        }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 0; margin: 0; background-color: var(--bg); color: var(--primary); }
 
-        /* Industrial Navbar */
-        .app-header { 
-            background: var(--primary); color: var(--white); 
-            padding: 15px; text-align: center; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            border-bottom: 4px solid var(--accent);
-        }
+        .app-header { background: var(--primary); color: var(--white); padding: 15px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); border-bottom: 4px solid var(--accent); }
         .app-header h2 { margin: 0; letter-spacing: 1px; text-transform: uppercase; font-size: 1.2rem; }
 
-        .container { padding: 15px; max-width: 800px; margin: auto; }
-
+        .container { padding: 15px; max-width: 900px; margin: auto; }
         #configPage, #trackerPage { display: none; }
         .active-page { display: block !important; }
 
-        /* Card Industrial Style */
-        .card { 
-            background: var(--white); padding: 15px; border-radius: 4px; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; 
-            border-left: 5px solid var(--secondary);
-        }
-        .card-header { 
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #eee; margin-bottom: 12px; padding-bottom: 8px;
-        }
+        .card { background: var(--white); padding: 15px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; border-left: 5px solid var(--secondary); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; margin-bottom: 12px; padding-bottom: 8px; }
         .card-header h4 { margin: 0; color: var(--secondary); text-transform: uppercase; font-size: 0.9rem; }
 
-        /* Input & Labels */
         .row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
         .row div { flex: 1; min-width: 140px; }
         label { font-weight: bold; font-size: 0.75rem; color: #7f8c8d; display: block; margin-bottom: 5px; text-transform: uppercase; }
-        input, select { 
-            width: 100%; padding: 12px; box-sizing: border-box; 
-            border: 1px solid #bdc3c7; border-radius: 4px; font-size: 1rem;
-            background-color: #fafafa;
-        }
-        input:focus { border-color: var(--accent); outline: none; background: #fff; }
+        input, select { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #bdc3c7; border-radius: 4px; font-size: 0.95rem; background-color: #fafafa; }
+        input:focus, select:focus { border-color: var(--accent); outline: none; background: #fff; }
 
-        /* Buttons */
-        .btn { 
-            padding: 14px; border: none; border-radius: 4px; cursor: pointer; 
-            font-weight: bold; width: 100%; margin-bottom: 10px; 
-            text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s;
-        }
+        .btn { padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-success { background: var(--success); color: white; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-warning { background: var(--accent); color: white; }
         .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
-        .btn-sm { padding: 8px 12px; font-size: 0.75rem; width: auto; margin: 0; }
+        .btn-sm { padding: 6px 10px; font-size: 0.75rem; width: auto; margin: 0 2px; }
 
-        /* Tables */
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; font-size: 0.85rem; }
-        th, td { border: 1px solid #dfe6e9; padding: 12px; text-align: left; }
-        th { background-color: #f8f9fa; color: var(--secondary); text-transform: uppercase; }
+        .table-container { overflow-x: auto; margin-top: 10px; border: 1px solid #dfe6e9; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; background: white; font-size: 0.85rem; white-space: nowrap; }
+        th, td { border-bottom: 1px solid #dfe6e9; border-right: 1px solid #dfe6e9; padding: 10px; text-align: left; vertical-align: middle; }
+        th { background-color: #f8f9fa; color: var(--secondary); text-transform: uppercase; font-size: 0.75rem; }
+        td input, td select { padding: 6px; font-size: 0.85rem; min-width: 60px; }
 
-        /* Tracker Specific */
-        .machine-block { 
-            background: var(--white); border: 1px solid #dcdde1; 
-            border-radius: 4px; padding: 15px; margin-bottom: 25px; 
-            border-top: 5px solid var(--accent);
-        }
-        .product-card { 
-            background: #fdfdfd; border: 1px solid #eee; 
-            padding: 15px; border-radius: 4px; margin-bottom: 12px; 
-            border-left: 3px solid #bdc3c7;
-        }
-        .result-tag { 
-            background: #fff9e6; padding: 10px; border-radius: 4px; 
-            margin-top: 10px; font-size: 0.9rem; border: 1px solid #ffeaa7;
-            color: #d35400; font-weight: bold; text-align: center;
-        }
+        .machine-block { background: var(--white); border: 1px solid #dcdde1; border-radius: 4px; padding: 15px; margin-bottom: 25px; border-top: 5px solid var(--accent); }
+        .download-section { background: #dfe6e9; padding: 20px; border-radius: 4px; margin-top: 30px; border: 1px solid #b2bec3; }
         
-        .auto-save-tag { 
-            position: fixed; top: 70px; right: 20px; background: var(--success); 
-            color: white; padding: 5px 12px; border-radius: 20px; 
-            font-size: 0.7rem; font-weight: bold; display: none; z-index: 100;
-        }
-
-        .download-section { 
-            background: #dfe6e9; padding: 20px; border-radius: 4px; 
-            margin-top: 30px; border: 1px solid #b2bec3;
-        }
+        .auto-save-tag { position: fixed; top: 70px; right: 20px; background: var(--success); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; display: none; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
@@ -133,7 +82,7 @@
                 </div>
                 <div class="table-container">
                     <table id="tableMesin">
-                        <thead><tr><th>Nama Mesin/Line</th><th>Opsi</th></tr></thead>
+                        <thead><tr><th>Nama Mesin/Line</th><th style="width: 140px;">Opsi</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
@@ -144,12 +93,12 @@
                 <div class="row">
                     <div style="flex:1"><label>Kode SKU</label><input type="text" id="confKode" placeholder="Contoh: SK-01"></div>
                     <div style="flex:2"><label>Deskripsi Produk</label><input type="text" id="confNamaProd"></div>
-                    <div style="flex:1"><label>Standar Pallet (cs)</label><input type="number" id="confKap"></div>
+                    <div style="flex:1"><label>Pallet (cs)</label><input type="number" id="confKap"></div>
                 </div>
                 <button id="btnSaveProduk" class="btn btn-primary" onclick="saveMasterProduk()">+ TAMBAHKAN KE KATALOG</button>
                 <div class="table-container">
                     <table id="tableProduk">
-                        <thead><tr><th>SKU</th><th>Deskripsi</th><th>Pallet (cs)</th><th>Opsi</th></tr></thead>
+                        <thead><tr><th>SKU</th><th>Deskripsi</th><th>Pallet</th><th style="width: 140px;">Opsi</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
@@ -162,12 +111,14 @@
             <div class="card">
                 <div class="card-header"><h4>Parameter Operasional</h4></div>
                 <div class="row">
-                    <div><label>Dinas Shift:</label><select id="selectShift"><option value="pagi">SHIFT PAGI (M)</option><option value="siang">SHIFT SIANG (A)</option><option value="malam">SHIFT MALAM (N)</option></select></div>
-                    <div><label>Grup Kerja:</label><select id="selectGrup"><option value="grup1">GRUP 1</option><option value="grup2">GRUP 2</option><option value="grup3">GRUP 3</option></select></div>
+                    <div><label>Dinas Shift:</label><select id="selectShift" onchange="updateShiftGrup()"><option value="PAGI">SHIFT PAGI (M)</option><option value="SIANG">SHIFT SIANG (A)</option><option value="MALAM">SHIFT MALAM (N)</option></select></div>
+                    <div><label>Grup Kerja:</label><select id="selectGrup" onchange="updateShiftGrup()"><option value="GRUP 1">GRUP 1</option><option value="GRUP 2">GRUP 2</option><option value="GRUP 3">GRUP 3</option></select></div>
                 </div>
             </div>
 
-            <div id="mainContainer"></div>
+            <div id="mainContainer">
+                </div>
+            
             <button class="btn btn-primary" onclick="addMachineBlock()">+ BUKA LINI MESIN BARU</button>
 
             <div class="download-section">
@@ -182,234 +133,282 @@
                 </div>
             </div>
             
-            <button class="btn btn-danger" onclick="resetForm()" style="margin-top: 40px; opacity: 0.8;">
+            <button class="btn btn-danger" onclick="resetTrackerForm()" style="margin-top: 40px; opacity: 0.8;">
                 🗑️ RESET DATA (SHIFT BARU)
             </button>
         </div>
     </div>
 
     <script>
+        // ==========================================
+        // 1. STATE MANAGEMENT (DATA & LOGIKA)
+        // ==========================================
+        
         let editMesinIdx = -1;
         let editProdukIdx = -1;
 
+        // Master Data
         let masterMesin = JSON.parse(localStorage.getItem('masterMesin')) || ["LINE 01", "LINE 02"];
         let masterProduk = JSON.parse(localStorage.getItem('masterProduk')) || [
             { id: "p1", kode: "PR-A", nama: "Varian Produk A", kap: 105 },
             { id: "p2", kode: "PR-B", nama: "Varian Produk B", kap: 108 }
         ];
 
+        // Tracker Data (State-Driven Architecture)
+        let trackerState = JSON.parse(localStorage.getItem('trackerState')) || {
+            shift: 'PAGI', grup: 'GRUP 1', machines: []
+        };
+
+        function showIndicator() {
+            const ind = document.getElementById('saveIndicator');
+            ind.style.display = 'block'; setTimeout(() => ind.style.display = 'none', 1000);
+        }
+
+        function saveAndRenderTracker() {
+            localStorage.setItem('trackerState', JSON.stringify(trackerState));
+            renderTrackerUI();
+            showIndicator();
+        }
+
+        // ==========================================
+        // 2. MASTER KONFIGURASI LOGIC
+        // ==========================================
         function renderConfig() {
-            const tMesin = document.querySelector('#tableMesin tbody');
-            tMesin.innerHTML = masterMesin.map((m, i) => `<tr>
-                <td><b>${m}</b></td>
-                <td>
-                    <button class="btn btn-warning btn-sm" onclick="editMesin(${i})">UBAH</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteMesin(${i})">HAPUS</button>
-                </td>
-            </tr>`).join('');
-
-            const tProduk = document.querySelector('#tableProduk tbody');
-            tProduk.innerHTML = masterProduk.map((p, i) => `<tr>
-                <td>${p.kode}</td><td><b>${p.nama}</b></td><td>${p.kap}</td>
-                <td>
-                    <button class="btn btn-warning btn-sm" onclick="editProduk(${i})">UBAH</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteProduk(${i})">HAPUS</button>
-                </td>
-            </tr>`).join('');
-
+            document.querySelector('#tableMesin tbody').innerHTML = masterMesin.map((m, i) => `<tr><td><b>${m}</b></td><td><button class="btn btn-warning btn-sm" onclick="editMesin(${i})">UBAH</button><button class="btn btn-danger btn-sm" onclick="deleteMesin(${i})">HAPUS</button></td></tr>`).join('');
+            document.querySelector('#tableProduk tbody').innerHTML = masterProduk.map((p, i) => `<tr><td>${p.kode}</td><td><b>${p.nama}</b></td><td>${p.kap}</td><td><button class="btn btn-warning btn-sm" onclick="editProduk(${i})">UBAH</button><button class="btn btn-danger btn-sm" onclick="deleteProduk(${i})">HAPUS</button></td></tr>`).join('');
             localStorage.setItem('masterMesin', JSON.stringify(masterMesin));
             localStorage.setItem('masterProduk', JSON.stringify(masterProduk));
         }
 
-        function editMesin(idx) {
-            document.getElementById('confMesin').value = masterMesin[idx];
-            editMesinIdx = idx;
-            document.getElementById('btnSaveMesin').innerText = "UPDATE";
-            document.getElementById('btnSaveMesin').classList.replace('btn-primary', 'btn-warning');
-        }
+        function editMesin(idx) { document.getElementById('confMesin').value = masterMesin[idx]; editMesinIdx = idx; document.getElementById('btnSaveMesin').innerText = "UPDATE"; document.getElementById('btnSaveMesin').classList.replace('btn-primary', 'btn-warning'); }
+        function saveMasterMesin() { const val = document.getElementById('confMesin').value.trim(); if(val) { if(editMesinIdx > -1) { masterMesin[editMesinIdx] = val; editMesinIdx = -1; document.getElementById('btnSaveMesin').innerText = "+ SIMPAN"; document.getElementById('btnSaveMesin').classList.replace('btn-warning', 'btn-primary'); } else { masterMesin.push(val); } document.getElementById('confMesin').value = ""; renderConfig(); } }
+        function deleteMesin(idx) { if(confirm("Hapus data mesin?")) { masterMesin.splice(idx, 1); renderConfig(); } }
 
-        function saveMasterMesin() {
-            const val = document.getElementById('confMesin').value.trim();
-            if(val) { 
-                if(editMesinIdx > -1) {
-                    masterMesin[editMesinIdx] = val;
-                    editMesinIdx = -1;
-                    document.getElementById('btnSaveMesin').innerText = "+ SIMPAN";
-                    document.getElementById('btnSaveMesin').classList.replace('btn-warning', 'btn-primary');
-                } else {
-                    masterMesin.push(val); 
-                }
-                document.getElementById('confMesin').value = ""; 
-                renderConfig(); 
-            }
-        }
-
-        function deleteMesin(idx) {
-            if(confirm("Hapus data mesin?")) { masterMesin.splice(idx, 1); renderConfig(); }
-        }
-
-        function editProduk(idx) {
-            const p = masterProduk[idx];
-            document.getElementById('confKode').value = p.kode;
-            document.getElementById('confNamaProd').value = p.nama;
-            document.getElementById('confKap').value = p.kap;
-            editProdukIdx = idx;
-            document.getElementById('btnSaveProduk').innerText = "UPDATE PRODUK";
-            document.getElementById('btnSaveProduk').classList.replace('btn-primary', 'btn-warning');
-        }
-
-        function saveMasterProduk() {
-            const k = document.getElementById('confKode').value.trim();
-            const n = document.getElementById('confNamaProd').value.trim();
-            const c = document.getElementById('confKap').value.trim();
-            if(k && n && c) { 
-                if(editProdukIdx > -1) {
-                    masterProduk[editProdukIdx].kode = k;
-                    masterProduk[editProdukIdx].nama = n;
-                    masterProduk[editProdukIdx].kap = parseInt(c);
-                    editProdukIdx = -1;
-                    document.getElementById('btnSaveProduk').innerText = "+ TAMBAHKAN KE KATALOG";
-                    document.getElementById('btnSaveProduk').classList.replace('btn-warning', 'btn-primary');
-                } else {
-                    masterProduk.push({id:"p-"+Date.now(), kode:k, nama:n, kap:parseInt(c)}); 
-                }
-                document.getElementById('confKode').value = "";
-                document.getElementById('confNamaProd').value = "";
-                document.getElementById('confKap').value = "";
-                renderConfig(); 
-            }
-        }
-
-        function deleteProduk(idx) {
-            if(confirm("Hapus data produk?")) { masterProduk.splice(idx, 1); renderConfig(); }
-        }
+        function editProduk(idx) { const p = masterProduk[idx]; document.getElementById('confKode').value = p.kode; document.getElementById('confNamaProd').value = p.nama; document.getElementById('confKap').value = p.kap; editProdukIdx = idx; document.getElementById('btnSaveProduk').innerText = "UPDATE PRODUK"; document.getElementById('btnSaveProduk').classList.replace('btn-primary', 'btn-warning'); }
+        function saveMasterProduk() { const k = document.getElementById('confKode').value.trim(); const n = document.getElementById('confNamaProd').value.trim(); const c = document.getElementById('confKap').value.trim(); if(k && n && c) { if(editProdukIdx > -1) { masterProduk[editProdukIdx] = {id: masterProduk[editProdukIdx].id, kode:k, nama:n, kap:parseInt(c)}; editProdukIdx = -1; document.getElementById('btnSaveProduk').innerText = "+ TAMBAHKAN KE KATALOG"; document.getElementById('btnSaveProduk').classList.replace('btn-warning', 'btn-primary'); } else { masterProduk.push({id:"p-"+Date.now(), kode:k, nama:n, kap:parseInt(c)}); } document.getElementById('confKode').value = ""; document.getElementById('confNamaProd').value = ""; document.getElementById('confKap').value = ""; renderConfig(); } }
+        function deleteProduk(idx) { if(confirm("Hapus data produk?")) { masterProduk.splice(idx, 1); renderConfig(); } }
 
         function switchPage(p) {
-            document.getElementById('configPage').classList.remove('active-page');
-            document.getElementById('trackerPage').classList.remove('active-page');
-            document.getElementById(p).classList.add('active-page');
-            if(p === 'trackerPage') updateAllDropdowns();
+            document.getElementById('configPage').classList.remove('active-page'); document.getElementById('trackerPage').classList.remove('active-page'); document.getElementById(p).classList.add('active-page');
+            if(p === 'trackerPage') { renderTrackerUI(); } // Re-render tracker saat dibuka
         }
 
-        function updateAllDropdowns() {
-            document.querySelectorAll('.m-type').forEach(s => { const v = s.value; s.innerHTML = masterMesin.map(m=>`<option value="${m}">${m}</option>`).join(''); s.value = v; });
-            document.querySelectorAll('.p-nama').forEach(s => { const v = s.value; s.innerHTML = masterProduk.map(p=>`<option value="${p.id}">[${p.kode}] ${p.nama}</option>`).join(''); s.value = v; });
+        // ==========================================
+        // 3. TRACKER DATA TABLE LOGIC
+        // ==========================================
+        
+        function updateShiftGrup() {
+            trackerState.shift = document.getElementById('selectShift').value;
+            trackerState.grup = document.getElementById('selectGrup').value;
+            localStorage.setItem('trackerState', JSON.stringify(trackerState));
+            showIndicator();
         }
 
-        function addMachineBlock(isRestore = false) {
-            const id = "m-" + Date.now() + Math.random();
-            const div = document.createElement('div');
-            div.className = 'machine-block'; div.id = id;
-            div.innerHTML = `
-                <div class="machine-header">
-                    <select class="m-type" style="width:70%; font-weight:bold;">${masterMesin.map(m=>`<option value="${m}">${m}</option>`).join('')}</select>
-                    <button class="btn btn-danger btn-sm" onclick="this.closest('.machine-block').remove();saveState()">TUTUP LINE</button>
-                </div>
-                <div class="plist"></div>
-                <button class="btn btn-outline" style="font-size:0.8rem; margin-top:10px;" onclick="addProduct('${id}')">+ TAMBAH SKU PRODUK</button>`;
-            document.getElementById('mainContainer').appendChild(div);
-            if(!isRestore) addProduct(id);
-            return id;
-        }
-
-        function addProduct(mid, isRestore = false) {
-            const plist = document.querySelector(`#${mid.replace(/\./g, "\\.")} .plist`);
-            const div = document.createElement('div');
-            div.className = 'product-card';
-            div.innerHTML = `
-                <div class="row">
-                    <div style="flex:2"><label>Nama SKU</label><select class="p-nama" onchange="autoFill(this)">${masterProduk.map(p=>`<option value="${p.id}">[${p.kode}] ${p.nama}</option>`).join('')}</select></div>
-                    <div style="flex:0.5"><label>Batch</label><select class="p-kode"><option value="M">M</option><option value="A">A</option><option value="N">N</option></select></div>
-                    <div style="flex:0.5"><label>Pallet (cs)</label><input type="number" class="p-kap"></div>
-                </div>
-                <div class="row">
-                    <div><label>Handover Sisa Lalu</label><input type="number" class="p-sisa" value="0"></div>
-                    <div><label>Hasil Produksi</label><input type="number" class="p-baru" value="0"></div>
-                </div>
-                <div class="res-live" style="display:none"></div>
-                <button class="btn btn-danger btn-sm" style="margin-top:10px; background:#bdc3c7;" onclick="this.closest('.product-card').remove();saveState()">HAPUS ITEM</button>`;
-            plist.appendChild(div);
-            if(!isRestore) autoFill(div.querySelector('.p-nama'));
-            return div;
-        }
-
-        function autoFill(s) {
-            const p = masterProduk.find(x => x.id === s.value);
-            if(p) s.closest('.product-card').querySelector('.p-kap').value = p.kap;
-            saveState();
-        }
-
-        function saveState() {
-            const data = { shift: document.getElementById('selectShift').value, grup: document.getElementById('selectGrup').value, machines: [] };
-            document.querySelectorAll('.machine-block').forEach(b => {
-                const m = { type: b.querySelector('.m-type').value, prods: [] };
-                b.querySelectorAll('.product-card').forEach(c => {
-                    const total = (parseInt(c.querySelector('.p-sisa').value) || 0) + (parseInt(c.querySelector('.p-baru').value) || 0);
-                    const kap = parseInt(c.querySelector('.p-kap').value) || 1;
-                    const full = Math.floor(total / kap);
-                    const sisaNext = total % kap;
-
-                    // Live update UI
-                    const resLive = c.querySelector('.res-live');
-                    resLive.style.display = 'block';
-                    resLive.className = 'result-tag';
-                    resLive.innerHTML = `LIVE REKAP: ${total} cs (${full} Pallet, Sisa ${sisaNext} cs)`;
-
-                    m.prods.push({ id: c.querySelector('.p-nama').value, kode: c.querySelector('.p-kode').value, kap: c.querySelector('.p-kap').value, sisa: c.querySelector('.p-sisa').value, baru: c.querySelector('.p-baru').value });
-                });
-                data.machines.push(m);
+        function addMachineBlock() {
+            trackerState.machines.push({
+                id: "m-" + Date.now(),
+                type: masterMesin.length > 0 ? masterMesin[0] : "",
+                rows: []
             });
-            localStorage.setItem('factoryTrackerData', JSON.stringify(data));
-            const indicator = document.getElementById('saveIndicator');
-            indicator.style.display = 'block';
-            setTimeout(() => { indicator.style.display = 'none'; }, 1000);
+            saveAndRenderTracker();
         }
 
-        function loadState() {
-            const d = JSON.parse(localStorage.getItem('factoryTrackerData'));
-            if(!d) { addMachineBlock(); return; }
-            document.getElementById('selectShift').value = d.shift; document.getElementById('selectGrup').value = d.grup;
-            d.machines.forEach(m => {
-                const mid = addMachineBlock(true);
-                document.querySelector(`#${mid.replace(/\./g, "\\.")} .m-type`).value = m.type;
-                m.prods.forEach(p => {
-                    const c = addProduct(mid, true);
-                    c.querySelector('.p-nama').value = p.id; c.querySelector('.p-kode').value = p.kode;
-                    c.querySelector('.p-kap').value = p.kap; c.querySelector('.p-sisa').value = p.sisa; c.querySelector('.p-baru').value = p.baru;
-                });
+        function deleteMachineBlock(mId) {
+            if(confirm("Tutup Lini Mesin ini beserta isinya?")) {
+                trackerState.machines = trackerState.machines.filter(m => m.id !== mId);
+                saveAndRenderTracker();
+            }
+        }
+
+        function updateMachineType(mId, newType) {
+            const m = trackerState.machines.find(x => x.id === mId);
+            if(m) m.type = newType;
+            saveAndRenderTracker();
+        }
+
+        function addTableRow(mId) {
+            const m = trackerState.machines.find(x => x.id === mId);
+            if(masterProduk.length === 0) return alert("Katalog produk kosong! Tambahkan di menu konfigurasi.");
+            const defaultProd = masterProduk[0];
+            m.rows.push({
+                id: "r-" + Date.now(),
+                skuId: defaultProd.id,
+                batch: "M",
+                kap: defaultProd.kap,
+                sisa: 0,
+                baru: 0,
+                isEditing: true // Status Baris Sedang Diedit
             });
-            saveState(); // Trigger live rekap visual
+            saveAndRenderTracker();
         }
 
+        function editTableRow(mId, rId) {
+            const r = trackerState.machines.find(m => m.id === mId).rows.find(x => x.id === rId);
+            r.isEditing = true;
+            saveAndRenderTracker();
+        }
+
+        function deleteTableRow(mId, rId) {
+            const m = trackerState.machines.find(x => x.id === mId);
+            m.rows = m.rows.filter(x => x.id !== rId);
+            saveAndRenderTracker();
+        }
+
+        // Fungsi yang dipanggil saat user mengganti dropdown SKU di baris edit
+        function autoUpdateEditKap(mId, rId, selectElem) {
+            const p = masterProduk.find(x => x.id === selectElem.value);
+            if(p) {
+                // Cari input kapasitas di baris yang sama dan ubah angkanya
+                const tr = selectElem.closest('tr');
+                tr.querySelector('.r-kap').value = p.kap;
+            }
+        }
+
+        // Fungsi krusial: Menyimpan data dari input HTML ke dalam State Array
+        function saveTableRow(mId, rId) {
+            const tr = document.getElementById(rId);
+            const r = trackerState.machines.find(m => m.id === mId).rows.find(x => x.id === rId);
+            
+            r.skuId = tr.querySelector('.r-sku').value;
+            r.batch = tr.querySelector('.r-batch').value;
+            r.kap = parseInt(tr.querySelector('.r-kap').value) || 1;
+            r.sisa = parseInt(tr.querySelector('.r-sisa').value) || 0;
+            r.baru = parseInt(tr.querySelector('.r-baru').value) || 0;
+            r.isEditing = false; // Mengunci baris menjadi teks statis
+            
+            saveAndRenderTracker();
+        }
+
+        function renderTrackerUI() {
+            document.getElementById('selectShift').value = trackerState.shift;
+            document.getElementById('selectGrup').value = trackerState.grup;
+
+            const container = document.getElementById('mainContainer');
+            container.innerHTML = '';
+
+            trackerState.machines.forEach(m => {
+                let html = `
+                <div class="machine-block">
+                    <div class="machine-header">
+                        <select onchange="updateMachineType('${m.id}', this.value)" style="width:70%; font-weight:bold; font-size:1rem; border:none; background:transparent; border-bottom:2px solid var(--primary); padding:5px;">
+                            ${masterMesin.map(mm => `<option value="${mm}" ${m.type === mm ? 'selected' : ''}>${mm}</option>`).join('')}
+                        </select>
+                        <button class="btn btn-danger btn-sm" onclick="deleteMachineBlock('${m.id}')">TUTUP LINE</button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="min-width:180px;">SKU Produk</th>
+                                    <th>Batch</th>
+                                    <th>Pallet</th>
+                                    <th>Sisa Lalu</th>
+                                    <th>Prod Baru</th>
+                                    <th style="background:#e1f5fe;">Total</th>
+                                    <th style="background:#e8f5e9;">Full</th>
+                                    <th style="background:#ffebee;">Next</th>
+                                    <th style="min-width:120px;">Opsi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                m.rows.forEach(r => {
+                    if (r.isEditing) {
+                        // MODE INPUT
+                        const prodOpts = masterProduk.map(p => `<option value="${p.id}" ${r.skuId === p.id ? 'selected' : ''}>[${p.kode}] ${p.nama}</option>`).join('');
+                        html += `
+                        <tr id="${r.id}" style="background:#fff9c4;">
+                            <td><select class="r-sku" onchange="autoUpdateEditKap('${m.id}', '${r.id}', this)" style="width:100%;">${prodOpts}</select></td>
+                            <td><select class="r-batch"><option value="M" ${r.batch==='M'?'selected':''}>M</option><option value="A" ${r.batch==='A'?'selected':''}>A</option><option value="N" ${r.batch==='N'?'selected':''}>N</option></select></td>
+                            <td><input type="number" class="r-kap" value="${r.kap}" readonly style="background:#eee; width:55px;"></td>
+                            <td><input type="number" class="r-sisa" value="${r.sisa}" style="width:65px;"></td>
+                            <td><input type="number" class="r-baru" value="${r.baru}" style="width:65px;"></td>
+                            <td colspan="3" style="text-align:center; font-size:0.75rem; color:var(--danger); font-style:italic;">⚠️ Harap Simpan</td>
+                            <td>
+                                <button class="btn btn-success btn-sm" onclick="saveTableRow('${m.id}', '${r.id}')">SIMPAN</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteTableRow('${m.id}', '${r.id}')">HAPUS</button>
+                            </td>
+                        </tr>`;
+                    } else {
+                        // MODE TEKS (Hasil Kalkulasi)
+                        const prod = masterProduk.find(p => p.id === r.skuId) || {kode: '-', nama: 'Terhapus'};
+                        const total = r.sisa + r.baru;
+                        const full = Math.floor(total / r.kap);
+                        const sisaNext = total % r.kap;
+
+                        html += `
+                        <tr style="background:#fdfdfd;">
+                            <td><b>[${prod.kode}]</b> ${prod.nama}</td>
+                            <td style="text-align:center; font-weight:bold; color:var(--secondary);">${r.batch}</td>
+                            <td style="text-align:center;">${r.kap}</td>
+                            <td style="text-align:center;">${r.sisa}</td>
+                            <td style="text-align:center;">${r.baru}</td>
+                            <td style="text-align:center; color:var(--primary); font-weight:bold; font-size:1.1rem; background:#e1f5fe;">${total}</td>
+                            <td style="text-align:center; color:var(--success); font-weight:bold; font-size:1.1rem; background:#e8f5e9;">${full}</td>
+                            <td style="text-align:center; color:var(--danger); font-weight:bold; font-size:1.1rem; background:#ffebee;">${sisaNext}</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" onclick="editTableRow('${m.id}', '${r.id}')">RUBAH</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteTableRow('${m.id}', '${r.id}')">HAPUS</button>
+                            </td>
+                        </tr>`;
+                    }
+                });
+
+                html += `
+                            </tbody>
+                        </table>
+                    </div>
+                    <button class="btn btn-outline" style="font-size:0.8rem; margin-top:15px; width:auto;" onclick="addTableRow('${m.id}')">+ TAMBAH SKU KE TABEL</button>
+                </div>`;
+                
+                container.innerHTML += html;
+            });
+        }
+
+        function resetTrackerForm() { 
+            if(confirm("PERINGATAN: Seluruh data log pada tracker akan dihapus untuk memulai shift baru. Lanjutkan?")) { 
+                trackerState.machines = []; 
+                saveAndRenderTracker();
+            } 
+        }
+
+        // ==========================================
+        // 4. EXPORT & DOWNLOAD LOGIC
+        // ==========================================
         function exportData() {
+            // Validasi: Cegah download jika masih ada baris yang belum di SIMPAN
+            const hasUnsavedRows = trackerState.machines.some(m => m.rows.some(r => r.isEditing));
+            if(hasUnsavedRows) {
+                alert("GAGAL DOWNLOAD!\nAda baris produk yang masih dalam mode edit (warna kuning). Harap klik SIMPAN pada baris tersebut terlebih dahulu.");
+                return;
+            }
+
+            if(trackerState.machines.length === 0 || trackerState.machines.every(m => m.rows.length === 0)) {
+                alert("Tidak ada data produksi yang bisa di-download."); return;
+            }
+
             const format = document.getElementById('exportFormat').value;
-            const shift = document.getElementById('selectShift').value.toUpperCase();
-            const grup = document.getElementById('selectGrup').value.toUpperCase();
+            const shift = trackerState.shift;
+            const grup = trackerState.grup;
             const date = new Date();
             const dateStr = date.toLocaleString('id-ID');
             const fileDate = date.getFullYear() + String(date.getMonth() + 1).padStart(2, '0') + String(date.getDate()).padStart(2, '0');
             const fileName = `FG_LOG_${shift}_${fileDate}`;
 
             let rows = [];
-            document.querySelectorAll('.machine-block').forEach(b => {
-                const mName = b.querySelector('.m-type').value;
-                b.querySelectorAll('.product-card').forEach(c => {
-                    const pMaster = masterProduk.find(x => x.id === c.querySelector('.p-nama').value);
-                    const n = pMaster ? pMaster.nama : "?";
-                    const k = c.querySelector('.p-kode').value;
-                    const cp = parseInt(c.querySelector('.p-kap').value) || 1;
-                    const s = parseInt(c.querySelector('.p-sisa').value) || 0;
-                    const br = parseInt(c.querySelector('.p-baru').value) || 0;
-                    const tot = s + br;
-                    rows.push({ mesin: mName, produk: n, kode: k, kap: cp, sisa: s, baru: br, total: tot, full: Math.floor(tot/cp), sisa_next: tot%cp });
+            trackerState.machines.forEach(m => {
+                m.rows.forEach(r => {
+                    const p = masterProduk.find(x => x.id === r.skuId) || {kode: '-', nama: '?'};
+                    const tot = r.sisa + r.baru;
+                    rows.push({ mesin: m.type, produk: p.nama, kode: r.batch, kap: r.kap, sisa: r.sisa, baru: r.baru, total: tot, full: Math.floor(tot/r.kap), sisa_next: tot%r.kap });
                 });
             });
 
             if(format === 'txt') {
                 let txt = `FINISH GOODS PRODUCTION LOG [${shift} - ${grup}]\nWaktu: ${dateStr}\n\n`;
-                rows.forEach((r, i) => {
-                    txt += `${i+1}. ${r.produk} [${r.kode}] | Lini: ${r.mesin}\n   Hasil: ${r.total} cs | Full Pallet: ${r.full} | Sisa Handover: ${r.sisa_next} cs\n\n`;
-                });
+                rows.forEach((r, i) => { txt += `${i+1}. ${r.produk} [${r.kode}] | Lini: ${r.mesin}\n   Hasil: ${r.total} cs | Full Pallet: ${r.full} | Sisa Handover: ${r.sisa_next} cs\n\n`; });
                 downloadBlob(txt, fileName + ".txt", "text/plain");
             } 
             else if(format === 'csv') {
@@ -423,7 +422,7 @@
                 doc.setFontSize(16); doc.text(`FINISH GOODS LOG: ${shift} - ${grup}`, 14, 15);
                 doc.setFontSize(10); doc.text(`Timestamp: ${dateStr}`, 14, 22);
                 const tableData = rows.map(r => [r.mesin, r.produk, r.kode, r.total, r.full, r.sisa_next]);
-                doc.autoTable({ head: [['Lini', 'Produk', 'Batch', 'Total cs', 'Full Pallet', 'Sisa cs']], body: tableData, startY: 28, theme: 'striped' });
+                doc.autoTable({ head: [['Lini', 'Produk', 'Batch', 'Total cs', 'Full Pallet', 'Sisa cs']], body: tableData, startY: 28, theme: 'grid', headStyles: { fillColor: [44, 62, 80] } });
                 doc.save(fileName + ".pdf");
             }
         }
@@ -435,15 +434,12 @@
             a.click(); URL.revokeObjectURL(url);
         }
 
-        function resetForm() { if(confirm("PERINGATAN: Seluruh data shift ini akan dihapus untuk memulai shift baru. Lanjutkan?")) { localStorage.removeItem('factoryTrackerData'); location.reload(); } }
-        
-        document.addEventListener('input', saveState);
-
+        // INIT PWA & RENDER
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error:', err)); });
         }
         
-        window.onload = () => { renderConfig(); loadState(); };
+        window.onload = () => { renderConfig(); renderTrackerUI(); };
     </script>
 </body>
 </html>
