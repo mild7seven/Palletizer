@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finish Goods Tracker - Enterprise v7.0</title>
+    <title>Finish Goods Tracker - Enterprise v7.1</title>
     <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
@@ -31,74 +32,69 @@
         .btn { padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 8px; text-transform: uppercase; font-size: 0.8rem; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-success { background: var(--success); color: white; }
-        .btn-warning { background: var(--accent); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
         .btn-outline { background: white; border: 2px solid var(--primary); color: var(--primary); }
         
-        /* Scanner UI */
-        #reader { width: 100%; max-width: 400px; margin: auto; border-radius: 10px; overflow: hidden; display: none; }
-        
-        .progress-wrapper { width: 100%; background: #eee; border-radius: 10px; height: 10px; margin: 5px 0; }
-        .progress-bar { height: 100%; transition: 0.5s; }
-        
         .machine-block { background: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 8px solid var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .machine-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        
         table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
         th, td { padding: 10px; border-bottom: 1px solid #f1f1f1; text-align: center; }
         
-        .indicator { position: fixed; bottom: 20px; left: 20px; background: #34495e; color: white; padding: 8px 15px; border-radius: 20px; font-size: 0.7rem; z-index: 1000; font-weight: bold; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #dfe6e9; border-radius: 4px; }
+        .progress-wrapper { width: 100%; background: #eee; border-radius: 10px; height: 8px; margin-top: 5px; }
+        .progress-bar { height: 100%; transition: 0.5s; }
     </style>
 </head>
 <body>
 
     <div class="app-header">
-        <h2>FG TRACKER ENTERPRISE <span style="font-size: 0.6rem; background: #e67e22; padding: 2px 6px; border-radius: 4px;">v7.0</span></h2>
+        <h2>Finish Goods Tracker <span style="font-size: 0.6rem; background: #e67e22; padding: 2px 6px; border-radius: 4px;">v7.1</span></h2>
     </div>
 
     <div class="container">
-        <div id="mainNav" style="display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto;">
+        <div style="display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto;">
             <button class="btn btn-outline" onclick="switchPage('dashboardPage')">📊 DASHBOARD</button>
             <button class="btn btn-outline" onclick="switchPage('trackerPage')">🖊️ TRACKER</button>
             <button class="btn btn-outline" onclick="switchPage('configPage')">⚙️ SETUP</button>
             <button class="btn btn-outline" onclick="switchPage('historyPage')">📜 HISTORY</button>
         </div>
 
-        <div id="syncStatus" class="indicator">OFFLINE MODE</div>
-
         <div id="dashboardPage" class="active-page">
-            <div class="card">
-                <h4>Statistik Produksi 7 Hari Terakhir</h4>
-                <div style="height: 300px;"><canvas id="prodChart"></canvas></div>
-            </div>
+            <div class="card"><div style="height: 300px;"><canvas id="prodChart"></canvas></div></div>
         </div>
 
         <div id="configPage">
             <div class="card">
-                <h4>Setup Cloud Sync (Google Sheets)</h4>
-                <input type="text" id="scriptUrl" placeholder="Masukkan URL Google Apps Script" onchange="syncSettings()">
-                <p style="font-size: 0.7rem; color: #7f8c8d;">Data akan otomatis dikirim ke Cloud saat Archive diklik.</p>
+                <h4>Master Mesin</h4>
+                <div class="row">
+                    <div style="flex:3"><input type="text" id="confMesin" placeholder="Nama Mesin (Contoh: K1)"></div>
+                    <div><button class="btn btn-primary" style="margin:0" onclick="saveMasterMesin()">+ TAMBAH MESIN</button></div>
+                </div>
+                <ul id="listMesin" style="font-size: 0.9rem;"></ul>
             </div>
             <div class="card">
                 <h4>Master SKU</h4>
                 <div class="row">
-                    <div><label>Barcode/SKU</label><input type="text" id="confKode"></div>
-                    <div style="flex:2"><label>Nama Produk</label><input type="text" id="confNamaProd"></div>
-                    <div><label>Pallet</label><input type="number" id="confKap"></div>
-                    <div><label>Target</label><input type="number" id="confTarget"></div>
+                    <div><input type="text" id="confKode" placeholder="SKU"></div>
+                    <div style="flex:2"><input type="text" id="confNamaProd" placeholder="Nama Produk"></div>
+                    <div><input type="number" id="confKap" placeholder="Std Pallet"></div>
+                    <div><input type="number" id="confTarget" placeholder="Target"></div>
                 </div>
-                <button class="btn btn-primary" onclick="saveMasterProduk()">+ UPDATE MASTER</button>
-                <table id="tableProduk"><thead><tr><th>SKU</th><th>Produk</th><th>Target</th><th>Aksi</th></tr></thead><tbody></tbody></table>
+                <button class="btn btn-primary" onclick="saveMasterProduk()">+ UPDATE KATALOG SKU</button>
+                <table id="tableProduk"><thead><tr><th>SKU</th><th>Produk</th><th>Target</th><th>Hapus</th></tr></thead><tbody></tbody></table>
             </div>
         </div>
 
         <div id="trackerPage">
-            <div class="card" style="padding: 10px;">
-                <div class="row" style="margin: 0;">
-                    <div style="flex: 2;"><button class="btn btn-warning" onclick="startScanner()">📷 SCAN BARCODE SKU</button></div>
-                    <div><button class="btn btn-outline" onclick="copyLastShift()">📋 COPY LAST</button></div>
-                </div>
-                <div id="reader"></div>
-            </div>
             <div id="mainContainer"></div>
-            <button class="btn btn-primary" onclick="addMachineBlock()">+ BUKA LINI BARU</button>
+            <div class="card">
+                <label>Buka Lini Baru:</label>
+                <div class="row">
+                    <select id="selectNewMachine" style="flex:2"></select>
+                    <button class="btn btn-primary" style="flex:1; margin:0" onclick="addMachineBlock()">+ BUKA LINI</button>
+                </div>
+            </div>
             <button class="btn btn-success" onclick="archiveAndSync()">🚀 ARCHIVE & SYNC CLOUD</button>
         </div>
 
@@ -108,10 +104,10 @@
     </div>
 
     <script>
-        const DB_NAME = 'FG_Enterprise_V7';
-        let db, myChart, html5QrCode;
+        const DB_NAME = 'FG_Tracker_V7_1';
+        let db, myChart;
         let master = { mesin: [], produk: [], scriptUrl: '' };
-        let current = { shift: 'PAGI', machines: [] };
+        let current = { machines: [] };
 
         const request = indexedDB.open(DB_NAME, 1);
         request.onupgradeneeded = (e) => {
@@ -132,120 +128,61 @@
         async function initApp() {
             const m = await dbOp('settings', 'get', 'master'); if(m) master = m;
             const c = await dbOp('tracker', 'get', 'active'); if(c) current = c;
-            document.getElementById('scriptUrl').value = master.scriptUrl || '';
             renderConfig();
             updateDashboard();
         }
 
-        // --- IDE #3: SCAN BARCODE ---
-        function startScanner() {
-            document.getElementById('reader').style.display = 'block';
-            html5QrCode = new Html5Qrcode("reader");
-            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 },
-                (decodedText) => {
-                    handleScanSuccess(decodedText);
-                    stopScanner();
-                }
-            );
-        }
-
-        function stopScanner() {
-            if(html5QrCode) {
-                html5QrCode.stop().then(() => { document.getElementById('reader').style.display = 'none'; });
-            }
-        }
-
-        function handleScanSuccess(sku) {
-            const p = master.produk.find(x => x.kode === sku);
-            if(!p) return alert("SKU: " + sku + " tidak terdaftar di Master!");
-            // Tambahkan otomatis ke Lini pertama yang aktif atau buat baru
-            if(current.machines.length === 0) addMachineBlock();
-            const m = current.machines[0];
-            m.rows.push({ id: Date.now().toString(), skuId: p.id, batch: 'M', sisa: 0, baru: 0, kap: p.kap, edit: true });
-            renderTracker();
-        }
-
-        // --- IDE #2: COPY LAST SHIFT ---
-        async function copyLastShift() {
-            const history = await dbOp('history', 'getAll');
-            if(history.length === 0) return alert("Tidak ada riwayat untuk disalin.");
-            const last = history[history.length - 1];
-            if(confirm("Salin Lini & SKU dari Shift Terakhir?")) {
-                current.machines = last.data.map(m => ({
-                    ...m,
-                    id: 'copy-' + Math.random(),
-                    rows: m.rows.map(r => ({ ...r, id: 'r-'+Math.random(), sisa: 0, baru: 0, edit: true }))
-                }));
-                renderTracker();
-            }
-        }
-
-        // --- IDE #5: CLOUD SYNC ---
-        async function archiveAndSync() {
-            if(!current.machines.length) return;
-            const archive = {
-                timestamp: Date.now(),
-                date: new Date().toLocaleString('id-ID'),
-                shift: current.shift,
-                data: current.machines
-            };
-            
-            await dbOp('history', 'put', archive);
-            
-            // Sync to Google Sheets
-            if(master.scriptUrl) {
-                document.getElementById('syncStatus').innerText = "SYNCING TO CLOUD...";
-                try {
-                    await fetch(master.scriptUrl, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        body: JSON.stringify(archive),
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-                    document.getElementById('syncStatus').innerText = "CLOUD SYNC SUCCESS ✓";
-                } catch (e) {
-                    document.getElementById('syncStatus').innerText = "SYNC FAILED (OFFLINE)";
-                }
-            }
-            alert("Berhasil diarsipkan & disinkronkan!");
-            updateDashboard();
-        }
-
-        // Boilerplate Render & Navigation
-        function switchPage(p) {
-            ['dashboardPage','trackerPage','configPage','historyPage'].forEach(id => document.getElementById(id).classList.remove('active-page'));
-            document.getElementById(p).classList.add('active-page');
-            if(p === 'dashboardPage') updateDashboard();
-            if(p === 'trackerPage') renderTracker();
-        }
-
-        function renderConfig() {
-            document.querySelector('#tableProduk tbody').innerHTML = master.produk.map((p, i) => `<tr><td>${p.kode}</td><td>${p.nama}</td><td>${p.target}</td><td><button onclick="master.produk.splice(${i},1);syncSettings();renderConfig();">X</button></td></tr>`).join('');
+        // --- MASTER LOGIC ---
+        function saveMasterMesin() {
+            const v = document.getElementById('confMesin').value.trim();
+            if(v) { master.mesin.push(v); document.getElementById('confMesin').value = ''; renderConfig(); syncMaster(); }
         }
 
         function saveMasterProduk() {
             const k = document.getElementById('confKode').value, n = document.getElementById('confNamaProd').value, 
                   c = document.getElementById('confKap').value, t = document.getElementById('confTarget').value;
-            master.produk.push({ id: Date.now().toString(), kode: k, nama: n, kap: parseInt(c), target: parseInt(t) || 0 });
-            syncSettings(); renderConfig();
+            if(k && n) { master.produk.push({ id: Date.now().toString(), kode: k, nama: n, kap: parseInt(c), target: parseInt(t) || 0 }); renderConfig(); syncMaster(); }
         }
 
-        function syncSettings() {
-            master.scriptUrl = document.getElementById('scriptUrl').value;
-            dbOp('settings', 'put', { id: 'master', ...master });
+        function renderConfig() {
+            document.getElementById('listMesin').innerHTML = master.mesin.map((m, i) => `<li>${m} <span onclick="master.mesin.splice(${i},1);renderConfig();syncMaster();" style="color:red; cursor:pointer; margin-left:10px;">[X]</span></li>`).join('');
+            document.querySelector('#tableProduk tbody').innerHTML = master.produk.map((p, i) => `<tr><td>${p.kode}</td><td>${p.nama}</td><td>${p.target}</td><td><button class="btn-danger btn-sm" onclick="master.produk.splice(${i},1);renderConfig();syncMaster();">X</button></td></tr>`).join('');
+            
+            // Update dropdown mesin di halaman tracker
+            document.getElementById('selectNewMachine').innerHTML = master.mesin.map(m => `<option value="${m}">${m}</option>`).join('');
+        }
+
+        function syncMaster() { dbOp('settings', 'put', { id: 'master', ...master }); }
+
+        // --- TRACKER LOGIC ---
+        function addMachineBlock() {
+            const mName = document.getElementById('selectNewMachine').value;
+            if(!mName) return alert("Pilih/Tambah Mesin di Setup dahulu!");
+            current.machines.push({ id: Date.now().toString(), type: mName, rows: [] });
+            renderTracker();
+        }
+
+        function addSkuToMachine(mId) {
+            const m = current.machines.find(x => x.id === mId);
+            const skuId = prompt("Pilih SKU:\n" + master.produk.map(p => `${p.id}: ${p.nama}`).join('\n'));
+            if(skuId) {
+                const p = master.produk.find(x => x.id === skuId);
+                m.rows.push({ id: Date.now().toString(), skuId: p.id, sisa: 0, baru: 0, kap: p.kap });
+                renderTracker();
+            }
         }
 
         function renderTracker() {
             const cont = document.getElementById('mainContainer'); cont.innerHTML = '';
             current.machines.forEach(m => {
                 let html = `<div class="machine-block">
-                    <strong>LINE: ${m.type}</strong>
-                    <table><thead><tr><th>Produk</th><th>Sisa</th><th>Baru</th><th>Progress</th></tr></thead><tbody>`;
+                    <div class="machine-header"><strong>${m.type}</strong> <button class="btn btn-danger btn-sm" onclick="current.machines=current.machines.filter(x=>x.id!=='${m.id}');renderTracker();">HAPUS LINI</button></div>
+                    <table><thead><tr><th>SKU</th><th>Sisa</th><th>Baru</th><th>Progress</th></tr></thead><tbody>`;
                 m.rows.forEach(r => {
                     const p = master.produk.find(x => x.id === r.skuId) || {nama:'?', target: 1};
                     const total = (r.sisa||0) + (r.baru||0);
                     const full = Math.floor(total/p.kap);
-                    const pct = Math.min((full/p.target)*100, 100);
+                    const pct = Math.min((full/(p.target||1))*100, 100);
                     html += `<tr>
                         <td>${p.nama}</td>
                         <td><input type="number" value="${r.sisa}" onchange="r.sisa=parseInt(this.value);renderTracker();"></td>
@@ -253,10 +190,16 @@
                         <td><div class="progress-wrapper"><div class="progress-bar" style="width:${pct}%; background:${pct>=100?'#27ae60':'#e67e22'}"></div></div></td>
                     </tr>`;
                 });
-                html += `</tbody></table></div>`;
+                html += `</tbody></table><button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="addSkuToMachine('${m.id}')">+ TAMBAH SKU</button></div>`;
                 cont.innerHTML += html;
             });
             dbOp('tracker', 'put', { id: 'active', ...current });
+        }
+
+        function switchPage(p) {
+            ['dashboardPage','trackerPage','configPage','historyPage'].forEach(id => document.getElementById(id).classList.remove('active-page'));
+            document.getElementById(p).classList.add('active-page');
+            if(p === 'trackerPage') renderTracker();
         }
 
         async function updateDashboard() {
@@ -264,18 +207,21 @@
             const last7 = history.slice(-7);
             if(myChart) myChart.destroy();
             myChart = new Chart(document.getElementById('prodChart'), {
-                type: 'line',
+                type: 'bar',
                 data: {
                     labels: last7.map(h => h.date.split(',')[0]),
-                    datasets: [{ label: 'Total Qty', data: last7.map(h => h.data.reduce((a,b)=>a+b.rows.reduce((c,d)=>c+d.sisa+d.baru,0),0)), borderColor: '#e67e22' }]
+                    datasets: [{ label: 'Total Qty', data: last7.map(h => h.data.reduce((a,b)=>a+b.rows.reduce((c,d)=>c+d.sisa+d.baru,0),0)), backgroundColor: '#2c3e50' }]
                 },
                 options: { maintainAspectRatio: false }
             });
         }
 
-        function addMachineBlock() {
-            const type = prompt("Nama Lini?"); if(type) current.machines.push({ id:Date.now().toString(), type, rows:[] });
-            renderTracker();
+        async function archiveAndSync() {
+            if(!current.machines.length) return;
+            const archive = { timestamp: Date.now(), date: new Date().toLocaleString('id-ID'), data: current.machines };
+            await dbOp('history', 'put', archive);
+            alert("Berhasil Diarsipkan!");
+            updateDashboard();
         }
     </script>
 </body>
