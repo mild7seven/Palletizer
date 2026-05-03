@@ -3,39 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pallet Tracker Multi-Produk</title>
+    <title>Factory Pallet Tracker</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0056b3">
     <style>
-        body { font-family: system-ui, sans-serif; padding: 15px; max-width: 650px; margin: auto; background-color: #f4f7f6; }
+        body { font-family: system-ui, sans-serif; padding: 15px; max-width: 700px; margin: auto; background-color: #f4f7f6; }
         .header-card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; border-top: 4px solid #343a40; }
         
-        /* Styling untuk Kartu Produk Dinamis */
-        .product-card { background: white; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 15px; position: relative; border-left: 4px solid #0056b3; }
-        .remove-btn { position: absolute; top: 10px; right: 10px; background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .machine-block { background: #fff; border: 1px solid #ced4da; border-radius: 12px; padding: 15px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .machine-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0056b3; margin-bottom: 15px; padding-bottom: 10px; }
         
-        .row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .row div { flex: 1; }
-        label { font-weight: bold; font-size: 12px; color: #555; display: block; margin-bottom: 4px; }
-        input, select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        .product-card { background: #f8f9fa; border: 1px solid #dee2e6; padding: 12px; border-radius: 8px; margin-bottom: 10px; position: relative; }
         
-        .btn { padding: 12px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; color: white; }
-        .btn-add { background: #17a2b8; border: 1px dashed #0c7586; color: white; }
-        .btn-calc { background: #0056b3; font-size: 16px; margin-top: 15px; }
-        .btn-download { background: #28a745; font-size: 16px; }
+        .row { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+        .row div { flex: 1; min-width: 120px; }
+        label { font-weight: bold; font-size: 11px; color: #666; display: block; margin-bottom: 3px; text-transform: uppercase; }
+        input, select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
         
-        .result-inline { background: #e9ecef; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 13px; text-align: center; border: 1px solid #ced4da; }
-        .result-inline strong { color: #d32f2f; font-size: 15px; }
+        .btn { padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-bottom: 10px; }
+        .btn-add-machine { background: #343a40; color: white; margin-bottom: 20px; }
+        .btn-add-prod { background: #e7f3ff; color: #0056b3; border: 1px dashed #0056b3; font-size: 13px; }
+        .btn-calc { background: #0056b3; color: white; font-size: 16px; margin-top: 20px; }
+        .btn-download { background: #28a745; color: white; font-size: 16px; }
+        .btn-remove { background: #ff4d4d; color: white; padding: 4px 8px; font-size: 11px; border-radius: 4px; width: auto; margin-bottom: 0; }
+        
+        .result-tag { background: #fff3cd; padding: 8px; border-radius: 5px; margin-top: 8px; font-size: 12px; border: 1px solid #ffeeba; }
     </style>
 </head>
 <body>
 
-    <h2 style="text-align: center; color: #333;">Multi-Pallet Tracker</h2>
+    <h2 style="text-align: center; color: #333;">Factory Pallet Tracker</h2>
 
     <div class="header-card">
-        <label>Mesin / Line:</label>
-        <input type="text" id="namaMesin" placeholder="Contoh: Line A">
-        <div class="row" style="margin-top: 10px;">
+        <div class="row">
             <div>
                 <label>Dinas/Shift:</label>
                 <select id="selectShift">
@@ -55,125 +55,148 @@
         </div>
     </div>
 
-    <div id="productContainer">
-        </div>
+    <div id="mainContainer"></div>
 
-    <button class="btn btn-add" onclick="addProductCard()">+ TAMBAH PRODUK LAIN</button>
+    <button class="btn btn-add-machine" onclick="addMachineBlock()">+ TAMBAH MESIN</button>
     <button class="btn btn-calc" onclick="calculateAll()">🧮 HITUNG SEMUA REKAP</button>
     <button class="btn btn-download" onclick="downloadLog()">📥 DOWNLOAD LOG (.txt)</button>
 
     <script>
+        const VARIANT_MAP = {
+            "K1": ["KCP 200g", "Kuah Bakso 100g", "Ayam 460g", "Sapi 460g"],
+            "Syntegon / Ilapak": ["KCP 1kg", "Ayam 1kg", "Sapi 1kg", "Rostip 1kg"],
+            "BP123": ["Sapi 94g", "Ayam 94g", "Natuna 36g"],
+            "Kingpack": ["Ayam 210g", "Sapi 210g"],
+            "Lainnya": []
+        };
+
         let logData = "";
 
-        // Registrasi SW tetap ada untuk PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch((err) => {
-                    console.log('PWA SW Error: ', err);
+                navigator.serviceWorker.register('sw.js').then(reg => {
+                    console.log('PWA: Service Worker terdaftar.');
+                }).catch(err => {
+                    console.log('PWA: Gagal daftar SW: ', err);
                 });
             });
         }
 
-        function addProductCard() {
-            const container = document.getElementById('productContainer');
-            const card = document.createElement('div');
-            card.className = 'product-card';
+        function addMachineBlock() {
+            const container = document.getElementById('mainContainer');
+            const machineId = "m-" + Date.now();
+            const block = document.createElement('div');
+            block.className = 'machine-block';
+            block.id = machineId;
             
-            // Label disesuaikan agar lebih jelas bahwa ini per item
-            card.innerHTML = `
-                <button class="remove-btn" onclick="this.parentElement.remove()">Hapus</button>
-                <div class="row">
-                    <div>
-                        <label>Kode Barang:</label>
-                        <input type="text" class="in-kode" placeholder="PRD-001">
+            block.innerHTML = `
+                <div class="machine-header">
+                    <div style="flex:2; margin-right:10px;">
+                        <label>Pilih Mesin:</label>
+                        <select class="m-type" onchange="updateVarianDropdown('${machineId}')">
+                            <option value="K1">Mesin K1</option>
+                            <option value="Syntegon / Ilapak">Mesin Syntegon / Ilapak</option>
+                            <option value="BP123">Mesin BP123</option>
+                            <option value="Kingpack">Mesin Kingpack</option>
+                            <option value="Lainnya">Mesin Lainnya</option>
+                        </select>
                     </div>
-                    <div>
-                        <label>Nama Produk:</label>
-                        <input type="text" class="in-nama" placeholder="Varian A">
-                    </div>
+                    <button class="btn-remove" onclick="document.getElementById('${machineId}').remove()">Hapus Mesin</button>
                 </div>
-                <div class="row">
-                    <div>
-                        <label>Isi per Pallet:</label>
-                        <input type="number" class="in-kapasitas" value="105" min="1">
-                    </div>
-                    <div>
-                        <label>Sisa Lalu:</label>
-                        <input type="number" class="in-sisa" value="0" min="0">
-                    </div>
-                    <div>
-                        <label>Prod. Baru:</label>
-                        <input type="number" class="in-baru" value="0" min="0">
-                    </div>
-                </div>
-                <div class="result-inline" style="display: none;">
-                    Total Barang Ini: <strong class="out-total">0</strong> cs<br>
-                    Pallet Full: <strong class="out-full">0</strong> | 
-                    Sisa Nanti: <strong class="out-sisa">0</strong>
-                </div>
+                <div class="product-list-container"></div>
+                <button class="btn btn-add-prod" onclick="addProductToMachine('${machineId}')">+ Tambah Produk di Mesin Ini</button>
             `;
-            container.appendChild(card);
+            container.appendChild(block);
+            addProductToMachine(machineId); 
         }
 
-        window.onload = () => { addProductCard(); };
+        function addProductToMachine(machineId) {
+            const machineBlock = document.getElementById(machineId);
+            const listContainer = machineBlock.querySelector('.product-list-container');
+            const machineType = machineBlock.querySelector('.m-type').value;
+            
+            const prodCard = document.createElement('div');
+            prodCard.className = 'product-card';
+            
+            let options = VARIANT_MAP[machineType].map(v => `<option value="${v}">${v}</option>`).join('');
+            if (machineType === "Lainnya") options = `<option value="Manual">Input Manual...</option>`;
+
+            prodCard.innerHTML = `
+                <div class="row">
+                    <div style="flex:2">
+                        <label>Varian Produk:</label>
+                        <select class="p-nama">${options}</select>
+                    </div>
+                    <div>
+                        <label>Isi/Pallet:</label>
+                        <input type="number" class="p-kap" value="105">
+                    </div>
+                </div>
+                <div class="row">
+                    <div><label>Sisa Lalu:</label><input type="number" class="p-sisa" value="0"></div>
+                    <div><label>Prod. Baru:</label><input type="number" class="p-baru" value="0"></div>
+                </div>
+                <div class="result-tag" style="display:none"></div>
+                <button class="btn-remove" style="margin-top:5px; background:#aaa" onclick="this.parentElement.remove()">Hapus Item</button>
+            `;
+            listContainer.appendChild(prodCard);
+        }
+
+        function updateVarianDropdown(machineId) {
+            const machineBlock = document.getElementById(machineId);
+            const machineType = machineBlock.querySelector('.m-type').value;
+            const allProdSelects = machineBlock.querySelectorAll('.p-nama');
+            
+            let options = VARIANT_MAP[machineType].map(v => `<option value="${v}">${v}</option>`).join('');
+            if (machineType === "Lainnya") options = `<option value="Manual">Input Manual...</option>`;
+            
+            allProdSelects.forEach(select => {
+                select.innerHTML = options;
+            });
+        }
 
         function calculateAll() {
-            const mesin = document.getElementById('namaMesin').value || "-";
             const shift = document.getElementById('selectShift').value.toUpperCase();
             const grup = document.getElementById('selectGrup').value.toUpperCase();
             const timestamp = new Date().toLocaleString('id-ID');
 
-            logData = `=== LAPORAN MULTI-PALLET [${shift} - ${grup}] ===\r\n`;
-            logData += `Waktu Cetak : ${timestamp}\r\n`;
-            logData += `Mesin / Line: ${mesin}\r\n`;
+            logData = `=== LAPORAN PRODUKSI [${shift} - ${grup}] ===\r\n`;
+            logData += `Waktu : ${timestamp}\r\n`;
             logData += `==============================================\r\n\r\n`;
 
-            const cards = document.querySelectorAll('.product-card');
+            const machineBlocks = document.querySelectorAll('.machine-block');
             
-            if(cards.length === 0) {
-                alert("Tidak ada produk untuk dihitung!");
-                return;
-            }
-
-            let index = 1;
-            cards.forEach(card => {
-                const kode = card.querySelector('.in-kode').value || "Tanpa Kode";
-                const nama = card.querySelector('.in-nama').value || "Tanpa Nama";
-                const kapasitas = parseInt(card.querySelector('.in-kapasitas').value) || 1;
-                const sisaLalu = parseInt(card.querySelector('.in-sisa').value) || 0;
-                const prodBaru = parseInt(card.querySelector('.in-baru').value) || 0;
-
-                // Perhitungan berfokus HANYA pada produk di kotak ini
-                const totalCasesItemIni = sisaLalu + prodBaru;
-                const fullPalletsItemIni = Math.floor(totalCasesItemIni / kapasitas);
-                const nextSisaItemIni = totalCasesItemIni % kapasitas;
-
-                const resultDiv = card.querySelector('.result-inline');
-                resultDiv.style.display = 'block';
-                card.querySelector('.out-total').innerText = totalCasesItemIni;
-                card.querySelector('.out-full').innerText = fullPalletsItemIni;
-                card.querySelector('.out-sisa').innerText = nextSisaItemIni;
-
-                // Format Log diperjelas per produk
-                logData += `[${index}] ${kode} - ${nama}\r\n`;
+            machineBlocks.forEach((block, mIdx) => {
+                const mName = block.querySelector('.m-type').value;
+                logData += `MESIN: ${mName.toUpperCase()}\r\n`;
                 logData += `----------------------------------------------\r\n`;
-                logData += `  Kapasitas per Pallet  : ${kapasitas} cs\r\n`;
-                logData += `  Sisa Shift Sebelumnya : ${sisaLalu} cs\r\n`;
-                logData += `  Produksi Shift Ini    : ${prodBaru} cs\r\n`;
-                logData += `  >>> HASIL REKAP PRODUK INI <<<\r\n`;
-                logData += `  Total Cases Item Ini  : ${totalCasesItemIni} cs\r\n`;
-                logData += `  Pallet Full Item Ini  : ${fullPalletsItemIni} Pallet\r\n`;
-                logData += `  Sisa Ke Shift Depan   : ${nextSisaItemIni} cs\r\n`;
-                logData += `\r\n`; 
-                
-                index++;
-            });
 
-            alert("Rekapitulasi semua produk berhasil dihitung!");
+                const prodCards = block.querySelectorAll('.product-card');
+                prodCards.forEach((card, pIdx) => {
+                    const nama = card.querySelector('.p-nama').value;
+                    const kap = parseInt(card.querySelector('.p-kap').value) || 1;
+                    const sisa = parseInt(card.querySelector('.p-sisa').value) || 0;
+                    const baru = parseInt(card.querySelector('.p-baru').value) || 0;
+
+                    const total = sisa + baru;
+                    const full = Math.floor(total / kap);
+                    const sisaNext = total % kap;
+
+                    const resTag = card.querySelector('.result-tag');
+                    resTag.style.display = 'block';
+                    resTag.innerHTML = `Hasil: <b>${total} cs</b> (${full} Pallet Full, Sisa ${sisaNext} cs)`;
+
+                    logData += `${pIdx+1}. ${nama}\r\n`;
+                    logData += `   Kapasitas: ${kap} | Sisa Lalu: ${sisa} | Prod: ${baru}\r\n`;
+                    logData += `   TOTAL: ${total} cs -> FULL: ${full} | SISA: ${sisaNext}\r\n\r\n`;
+                });
+                logData += `\r\n`;
+            });
+            alert("Kalkulasi per produk selesai!");
         }
 
         function downloadLog() {
-            if (!logData) { alert("Klik tombol HITUNG SEMUA REKAP terlebih dahulu!"); return; }
+            if (!logData) { alert("Hitung rekap dulu!"); return; }
             const shiftVal = document.getElementById('selectShift').value;
             const grupVal = document.getElementById('selectGrup').value;
             const d = new Date();
@@ -183,13 +206,12 @@
             const blob = new Blob([logData], { type: "text/plain;charset=utf-8" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            a.href = url; a.download = fileName;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }
+
+        window.onload = () => { addMachineBlock(); };
     </script>
 </body>
 </html>
