@@ -1,17 +1,21 @@
-# Finish Goods Tracker Enterprise v7.0 🚀
+# Finish Goods Tracker
 
-Solusi industri terintegrasi untuk pelacakan produksi Finish Goods.
+PWA (Progressive Web App) untuk pencatatan lini produksi pabrik dan pelacakan barang jadi. Aplikasi ini dilengkapi dengan **Smart Scanner** berbasis OCR (Optical Character Recognition) yang berjalan sepenuhnya offline di peramban web perangkat.
 
-## 🌟 Fitur Unggulan v7.0
-1. **Barcode Scanning:** Input SKU instan menggunakan kamera perangkat.
-2. **Cloud Sync:** Sinkronisasi otomatis ke Google Sheets via Apps Script Webhook.
-3. **Analytics Dashboard:** Tren grafik produksi 7 hari terakhir.
-4. **Copy Last Shift:** Efisiensi input dengan menyalin konfigurasi lini dari shift sebelumnya.
-5. **Target Monitoring:** Indikator progress bar visual (Aktual vs Target).
+## Fitur Utama
+- **Dashboard Produksi**: Pemantauan visual total palet menggunakan Chart.js.
+- **Manajemen Lini**: Membuka blok lini mesin dan memasukkan data sisa vs barang baru.
+- **Smart Scanner (Offline)**: Ekstraksi teks dari karton produksi (seperti SKU dan nama produk) otomatis ke form database, menggunakan Tesseract.js.
+- **Dukungan Penuh Offline**: Menyimpan status produksi di IndexedDB dan caching aset dengan Service Worker.
 
-## 🔧 Integrasi Cloud (Google Sheets)
-1. Buat Google Sheets baru.
-2. Buka `Extensions` -> `Apps Script`.
-3. Gunakan fungsi `doPost(e)` untuk menerima JSON dan menulis ke baris sheet.
-4. Deploy sebagai Web App (Set access to 'Anyone').
-5. Masukkan URL hasil deploy ke Menu Setup di aplikasi ini.
+## Instalasi dan Setup
+1. Tempatkan `index.html`, `sw.js`, dan `manifest.json` di direktori yang sama pada server atau lokal Anda.
+2. Sediakan ikon ( `icon-192x192.png` dan `icon-512x512.png` ) di direktori yang sama untuk mendukung instalasi PWA di smartphone Android/iOS.
+3. Akses melalui HTTPS (atau `localhost`).
+4. Buka aplikasi, lalu browser akan otomatis men-*download* berkas yang dibutuhkan melalui Service Worker. Pada kunjungan selanjutnya, aplikasi dapat dijalankan tanpa kuota internet.
+
+## Konfigurasi Kustomisasi Regex (Smart Scanner)
+Jika supplier kardus Anda berubah, Anda dapat memperbarui aturan Regex di dalam fungsi event listener `cameraInput` di `index.html`:
+```javascript
+// Ganti angka 8 digit jika format pabrik berbeda
+const kodeMatch = text.match(/\b\d{8}\b/); 

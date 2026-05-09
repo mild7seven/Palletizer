@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finish Goods Tracker - Enterprise v7.1</title>
+    <title>Finish Goods Tracker</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2c3e50">
     
@@ -11,6 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 
     <style>
         :root {
@@ -44,12 +45,14 @@
         input, select { width: 100%; padding: 8px; border: 1px solid #dfe6e9; border-radius: 4px; }
         .progress-wrapper { width: 100%; background: #eee; border-radius: 10px; height: 8px; margin-top: 5px; }
         .progress-bar { height: 100%; transition: 0.5s; }
+        
+        .scanner-box { background: #e8f4f8; border: 1px dashed var(--primary); padding: 15px; border-radius: 8px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
     <div class="app-header">
-        <h2>Finish Goods Tracker <span style="font-size: 0.6rem; background: #e67e22; padding: 2px 6px; border-radius: 4px;">v7.1</span></h2>
+        <h2>Finish Goods Tracker</h2>
     </div>
 
     <div class="container">
@@ -73,16 +76,24 @@
                 </div>
                 <ul id="listMesin" style="font-size: 0.9rem;"></ul>
             </div>
+            
             <div class="card">
                 <h4>Master SKU</h4>
+                
+                <div class="scanner-box">
+                    <label style="font-weight: bold;">📷 Smart Scanner Karton (OCR Offline)</label>
+                    <input type="file" id="cameraInput" accept="image/*" capture="environment" class="btn btn-outline" style="margin-top: 10px;">
+                    <div id="scanStatus" style="font-size: 0.85rem; color: #e67e22; margin-top: 5px; font-weight: bold;"></div>
+                </div>
+
                 <div class="row">
-                    <div><input type="text" id="confKode" placeholder="SKU"></div>
-                    <div style="flex:2"><input type="text" id="confNamaProd" placeholder="Nama Produk"></div>
+                    <div><input type="text" id="confKode" placeholder="Kode SKU"></div>
+                    <div style="flex:2"><input type="text" id="confNamaProd" placeholder="Nama Produk + Varian"></div>
                     <div><input type="number" id="confKap" placeholder="Std Pallet"></div>
                     <div><input type="number" id="confTarget" placeholder="Target"></div>
                 </div>
                 <button class="btn btn-primary" onclick="saveMasterProduk()">+ UPDATE KATALOG SKU</button>
-                <table id="tableProduk"><thead><tr><th>SKU</th><th>Produk</th><th>Target</th><th>Hapus</th></tr></thead><tbody></tbody></table>
+                <table id="tableProduk" style="margin-top:15px;"><thead><tr><th>SKU</th><th>Produk</th><th>Target</th><th>Hapus</th></tr></thead><tbody></tbody></table>
             </div>
         </div>
 
@@ -104,7 +115,7 @@
     </div>
 
     <script>
-        const DB_NAME = 'FG_Tracker_V7_1';
+        const DB_NAME = 'FG_Tracker_DB';
         let db, myChart;
         let master = { mesin: [], produk: [], scriptUrl: '' };
         let current = { machines: [] };
@@ -132,6 +143,61 @@
             updateDashboard();
         }
 
+        // --- SMART SCANNER OCR LOGIC ---
+        document.getElementById('cameraInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const statusDiv = document.getElementById('scanStatus');
+            statusDiv.innerText = "⏳ Memproses gambar... (Harap tunggu)";
+
+            try {
+                const worker = await Tesseract.createWorker({ logger: m => console.log(m) });
+                await worker.loadLanguage('eng');
+                await worker.initialize('eng');
+                const { data: { text } } = await worker.recognize(file);
+                await worker.terminate();
+
+                statusDiv.innerText = "✅ Ekstraksi selesai. Memilah data...";
+                console.log("Raw Teks:\n", text);
+
+                // Kustomisasi Parsing RegEx
+                let kode_barang = "";
+                let nama_barang = "";
+                let varian = "";
+
+                // Ekstrak 8 digit angka sebagai kode barang
+                const kodeMatch = text.match(/\b\d{8}\b/);
+                if (kodeMatch) kode_barang = kodeMatch[0];
+
+                // Deteksi nama produk & varian berdasarkan keywords
+                const txtUpper = text.toUpperCase();
+                if (txtUpper.includes('CHICKEN SEASONING') || txtUpper.includes('AYAM')) {
+                    nama_barang = "Knorr Professional Chicken Seasoning Powder";
+                    varian = "Ayam";
+                } else if (txtUpper.includes('BEEF') || txtUpper.includes('SAPI')) {
+                    nama_barang = "Knorr Professional Beef Seasoning Powder";
+                    varian = "Sapi";
+                } else if (txtUpper.includes('KNORR')) {
+                    nama_barang = "Knorr Product (Varian Lain)";
+                }
+
+                // Masukkan hasil ke dalam form
+                if(kode_barang) document.getElementById('confKode').value = kode_barang;
+                if(nama_barang) {
+                    const fullName = varian ? `${nama_barang} [${varian}]` : nama_barang;
+                    document.getElementById('confNamaProd').value = fullName;
+                }
+
+                statusDiv.innerText = "✨ Data siap disimpan ke Katalog!";
+                setTimeout(() => { statusDiv.innerText = ""; document.getElementById('cameraInput').value = ""; }, 4000);
+
+            } catch(err) {
+                console.error(err);
+                statusDiv.innerText = "❌ Gagal membaca gambar. Pastikan tulisan jelas.";
+            }
+        });
+
         // --- MASTER LOGIC ---
         function saveMasterMesin() {
             const v = document.getElementById('confMesin').value.trim();
@@ -141,14 +207,22 @@
         function saveMasterProduk() {
             const k = document.getElementById('confKode').value, n = document.getElementById('confNamaProd').value, 
                   c = document.getElementById('confKap').value, t = document.getElementById('confTarget').value;
-            if(k && n) { master.produk.push({ id: Date.now().toString(), kode: k, nama: n, kap: parseInt(c), target: parseInt(t) || 0 }); renderConfig(); syncMaster(); }
+            if(k && n) { 
+                master.produk.push({ id: Date.now().toString(), kode: k, nama: n, kap: parseInt(c), target: parseInt(t) || 0 }); 
+                renderConfig(); syncMaster(); 
+                document.getElementById('confKode').value = '';
+                document.getElementById('confNamaProd').value = '';
+                document.getElementById('confKap').value = '';
+                document.getElementById('confTarget').value = '';
+                alert("SKU Berhasil Ditambahkan!");
+            } else {
+                alert("Kode dan Nama Produk wajib diisi!");
+            }
         }
 
         function renderConfig() {
             document.getElementById('listMesin').innerHTML = master.mesin.map((m, i) => `<li>${m} <span onclick="master.mesin.splice(${i},1);renderConfig();syncMaster();" style="color:red; cursor:pointer; margin-left:10px;">[X]</span></li>`).join('');
             document.querySelector('#tableProduk tbody').innerHTML = master.produk.map((p, i) => `<tr><td>${p.kode}</td><td>${p.nama}</td><td>${p.target}</td><td><button class="btn-danger btn-sm" onclick="master.produk.splice(${i},1);renderConfig();syncMaster();">X</button></td></tr>`).join('');
-            
-            // Update dropdown mesin di halaman tracker
             document.getElementById('selectNewMachine').innerHTML = master.mesin.map(m => `<option value="${m}">${m}</option>`).join('');
         }
 
@@ -164,9 +238,11 @@
 
         function addSkuToMachine(mId) {
             const m = current.machines.find(x => x.id === mId);
-            const skuId = prompt("Pilih SKU:\n" + master.produk.map(p => `${p.id}: ${p.nama}`).join('\n'));
-            if(skuId) {
-                const p = master.produk.find(x => x.id === skuId);
+            const skuList = master.produk.map((p, idx) => `${idx + 1}. ${p.kode} - ${p.nama}`).join('\n');
+            const skuIdx = prompt("Ketik nomor urut SKU untuk ditambahkan:\n" + skuList);
+            
+            if(skuIdx && !isNaN(skuIdx) && skuIdx > 0 && skuIdx <= master.produk.length) {
+                const p = master.produk[skuIdx - 1];
                 m.rows.push({ id: Date.now().toString(), skuId: p.id, sisa: 0, baru: 0, kap: p.kap });
                 renderTracker();
             }
@@ -179,12 +255,12 @@
                     <div class="machine-header"><strong>${m.type}</strong> <button class="btn btn-danger btn-sm" onclick="current.machines=current.machines.filter(x=>x.id!=='${m.id}');renderTracker();">HAPUS LINI</button></div>
                     <table><thead><tr><th>SKU</th><th>Sisa</th><th>Baru</th><th>Progress</th></tr></thead><tbody>`;
                 m.rows.forEach(r => {
-                    const p = master.produk.find(x => x.id === r.skuId) || {nama:'?', target: 1};
+                    const p = master.produk.find(x => x.id === r.skuId) || {nama:'Data Dihapus', target: 1};
                     const total = (r.sisa||0) + (r.baru||0);
-                    const full = Math.floor(total/p.kap);
+                    const full = Math.floor(total/(p.kap||1));
                     const pct = Math.min((full/(p.target||1))*100, 100);
                     html += `<tr>
-                        <td>${p.nama}</td>
+                        <td style="text-align:left; font-size:0.8rem;">${p.nama}<br><small style="color:gray;">${p.kode}</small></td>
                         <td><input type="number" value="${r.sisa}" onchange="r.sisa=parseInt(this.value);renderTracker();"></td>
                         <td><input type="number" value="${r.baru}" onchange="r.baru=parseInt(this.value);renderTracker();"></td>
                         <td><div class="progress-wrapper"><div class="progress-bar" style="width:${pct}%; background:${pct>=100?'#27ae60':'#e67e22'}"></div></div></td>
@@ -210,7 +286,7 @@
                 type: 'bar',
                 data: {
                     labels: last7.map(h => h.date.split(',')[0]),
-                    datasets: [{ label: 'Total Qty', data: last7.map(h => h.data.reduce((a,b)=>a+b.rows.reduce((c,d)=>c+d.sisa+d.baru,0),0)), backgroundColor: '#2c3e50' }]
+                    datasets: [{ label: 'Total Pallet Selesai', data: last7.map(h => h.data.reduce((a,b)=>a+b.rows.reduce((c,d)=>c+Math.floor((d.sisa+d.baru)/d.kap),0),0)), backgroundColor: '#2c3e50' }]
                 },
                 options: { maintainAspectRatio: false }
             });
@@ -220,8 +296,19 @@
             if(!current.machines.length) return;
             const archive = { timestamp: Date.now(), date: new Date().toLocaleString('id-ID'), data: current.machines };
             await dbOp('history', 'put', archive);
-            alert("Berhasil Diarsipkan!");
+            alert("Berhasil Diarsipkan ke History!");
+            current.machines = [];
+            renderTracker();
             updateDashboard();
+        }
+
+        // Pendaftaran Service Worker PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('SW Registered', reg))
+                .catch(err => console.log('SW Reg. Failed', err));
+            });
         }
     </script>
 </body>
