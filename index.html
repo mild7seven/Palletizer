@@ -10,7 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://unpkg.com/html5-qrcode"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
 
     <style>
@@ -20,13 +20,13 @@
         }
 
         body { font-family: 'Segoe UI', sans-serif; padding: 0; margin: 0; background-color: var(--bg); }
-        .app-header { background: var(--primary); color: white; padding: 15px; text-align: center; border-bottom: 4px solid var(--accent); position: sticky; top: 0; z-index: 1000; }
+        .app-header { background: var(--primary); color: white; padding: 15px; text-align: center; border-bottom: 4px solid var(--accent); position: sticky; top: 0; z-index: 100; }
         .container { padding: 15px; max-width: 1100px; margin: auto; }
         
         #configPage, #trackerPage, #historyPage, #dashboardPage { display: none; }
         .active-page { display: block !important; }
         
-        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #eee; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #eee; overflow-x: auto; }
         .row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
         .row div { flex: 1; min-width: 120px; }
         
@@ -35,18 +35,24 @@
         .btn-success { background: var(--success); color: white; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-outline { background: white; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-sm { padding: 6px; font-size: 0.7rem; width: auto; margin: 0; }
         
-        .machine-block { background: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 8px solid var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .machine-block { background: white; border-radius: 12px; padding: 15px; margin-bottom: 20px; border-left: 8px solid var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow-x: auto; }
         .machine-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        th, td { padding: 10px; border-bottom: 1px solid #f1f1f1; text-align: center; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 600px; }
+        th, td { padding: 10px; border-bottom: 1px solid #f1f1f1; text-align: center; vertical-align: middle; }
         
-        input, select { width: 100%; padding: 8px; border: 1px solid #dfe6e9; border-radius: 4px; }
-        .progress-wrapper { width: 100%; background: #eee; border-radius: 10px; height: 8px; margin-top: 5px; }
-        .progress-bar { height: 100%; transition: 0.5s; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #dfe6e9; border-radius: 4px; box-sizing: border-box; }
+        .table-input { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.85rem; }
         
-        .scanner-box { background: #e8f4f8; border: 1px dashed var(--primary); padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .scanner-box { background: #e8f4f8; border: 1px dashed var(--primary); padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center; }
+        
+        /* Gaya Custom Live Scanner UI */
+        #scannerModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; flex-direction: column; }
+        .video-wrapper { position: relative; width: 300px; height: 300px; border-radius: 12px; overflow: hidden; background: #000; }
+        #videoElement { width: 100%; height: 100%; object-fit: cover; }
+        .scanner-guide { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 220px; height: 120px; border: 3px dashed #27ae60; box-shadow: 0 0 0 999px rgba(0,0,0,0.6); pointer-events: none; }
     </style>
 </head>
 <body>
@@ -71,34 +77,38 @@
             <div class="card">
                 <h4>Master Mesin</h4>
                 <div class="row">
-                    <div style="flex:3"><input type="text" id="confMesin" placeholder="Nama Mesin (Contoh: K1)"></div>
-                    <div><button class="btn btn-primary" style="margin:0" onclick="saveMasterMesin()">+ TAMBAH MESIN</button></div>
+                    <div style="flex:3"><input type="text" id="confMesin" placeholder="Nama Lini / Mesin"></div>
+                    <div><button class="btn btn-primary" style="margin:0" onclick="saveMasterMesin()">+ TAMBAH</button></div>
                 </div>
-                <ul id="listMesin" style="font-size: 0.9rem;"></ul>
+                <ul id="listMesin" style="font-size: 0.9rem; padding-left: 20px;"></ul>
             </div>
             
             <div class="card">
-                <h4>Master SKU</h4>
+                <h4>Master SKU (Katalog)</h4>
                 
                 <div class="scanner-box">
-                    <label style="font-weight: bold;">📷 Smart Scanner Karton (OCR Offline)</label>
-                    <input type="file" id="cameraInput" accept="image/*" capture="environment" class="btn btn-outline" style="margin-top: 10px;">
-                    <div id="scanStatus" style="font-size: 0.85rem; color: #e67e22; margin-top: 5px; font-weight: bold;"></div>
+                    <label style="font-weight: bold;">📷 Smart Scanner Karton (OCR)</label><br>
+                    <button class="btn btn-outline" style="margin-top: 10px; width: auto;" onclick="openScanner()">Buka Kamera Pemindai</button>
+                    <div id="scanStatus" style="font-size: 0.85rem; color: #e67e22; margin-top: 8px; font-weight: bold;"></div>
                 </div>
 
                 <div class="row">
-                    <div><input type="text" id="confKode" placeholder="Kode SKU"></div>
+                    <div><input type="text" id="confKode" placeholder="Kode Material"></div>
                     <div style="flex:2"><input type="text" id="confNamaProd" placeholder="Nama Produk + Varian"></div>
-                    <div><input type="number" id="confKap" placeholder="Std Pallet"></div>
+                    <div><input type="number" id="confKap" placeholder="Kapasitas Pallet"></div>
                     <div><input type="number" id="confTarget" placeholder="Target"></div>
                 </div>
-                <button class="btn btn-primary" onclick="saveMasterProduk()">+ UPDATE KATALOG SKU</button>
-                <table id="tableProduk" style="margin-top:15px;"><thead><tr><th>SKU</th><th>Produk</th><th>Target</th><th>Hapus</th></tr></thead><tbody></tbody></table>
+                <button class="btn btn-primary" onclick="saveMasterProduk()">+ SIMPAN KE KATALOG</button>
+                
+                <table id="tableProduk" style="margin-top:15px; min-width: 100%;">
+                    <thead><tr style="background: #f1f1f1;"><th>Kode</th><th>Produk</th><th>Target</th><th>Hapus</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <button class="btn btn-success" style="margin-top: 15px;" onclick="exportKatalogToCSV()">📥 EXPORT KATALOG KE CSV</button>
             </div>
         </div>
 
         <div id="trackerPage">
-            <div id="mainContainer"></div>
             <div class="card">
                 <label>Buka Lini Baru:</label>
                 <div class="row">
@@ -106,18 +116,33 @@
                     <button class="btn btn-primary" style="flex:1; margin:0" onclick="addMachineBlock()">+ BUKA LINI</button>
                 </div>
             </div>
-            <button class="btn btn-success" onclick="archiveAndSync()">🚀 ARCHIVE & SYNC CLOUD</button>
+            <div id="mainContainer"></div>
+            <button class="btn btn-success" onclick="archiveAndSync()">🚀 ARCHIVE & SIMPAN HISTORY</button>
         </div>
 
         <div id="historyPage">
-            <div class="card"><div id="historyList"></div></div>
+            <div class="card"><div id="historyList">Belum ada riwayat arsip.</div></div>
         </div>
     </div>
 
+    <div id="scannerModal">
+        <h3 style="color: white; margin-bottom: 10px;">Arahkan Teks Kode ke Kotak</h3>
+        <div class="video-wrapper">
+            <video id="videoElement" autoplay playsinline></video>
+            <div class="scanner-guide"></div>
+        </div>
+        <div style="margin-top: 20px; width: 300px; display: flex; gap: 10px;">
+            <button class="btn btn-danger" style="flex: 1; margin:0;" onclick="closeScanner()">BATAL</button>
+            <button class="btn btn-success" style="flex: 2; margin:0;" onclick="captureAndScan()">AMBIL & SCAN</button>
+        </div>
+        <canvas id="canvasElement" style="display:none;"></canvas>
+    </div>
+
     <script>
+        // --- 1. INISIALISASI DATABASE ---
         const DB_NAME = 'FG_Tracker_DB';
         let db, myChart;
-        let master = { mesin: [], produk: [], scriptUrl: '' };
+        let master = { mesin: [], produk: [] };
         let current = { machines: [] };
 
         const request = indexedDB.open(DB_NAME, 1);
@@ -143,62 +168,78 @@
             updateDashboard();
         }
 
-        // --- SMART SCANNER OCR LOGIC ---
-        document.getElementById('cameraInput').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            
+        // --- 2. KONTROL LIVE SCANNER OCR ---
+        let videoStream;
+
+        async function openScanner() {
+            document.getElementById('scannerModal').style.display = 'flex';
+            const video = document.getElementById('videoElement');
+            try {
+                // Akses kamera belakang. Wajib HTTPS atau localhost
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                video.srcObject = videoStream;
+            } catch (err) {
+                alert("Akses kamera ditolak atau wajib menggunakan HTTPS.");
+                closeScanner();
+            }
+        }
+
+        function closeScanner() {
+            document.getElementById('scannerModal').style.display = 'none';
+            if (videoStream) videoStream.getTracks().forEach(track => track.stop());
+        }
+
+        async function captureAndScan() {
+            const video = document.getElementById('videoElement');
+            const canvas = document.getElementById('canvasElement');
             const statusDiv = document.getElementById('scanStatus');
+            
+            // Tangkap frame
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = canvas.toDataURL('image/jpeg');
+            closeScanner(); 
+            
             statusDiv.innerText = "⏳ Memproses gambar... (Harap tunggu)";
 
             try {
-                const worker = await Tesseract.createWorker({ logger: m => console.log(m) });
+                const worker = await Tesseract.createWorker({ logger: m => console.log(m.status) });
                 await worker.loadLanguage('eng');
                 await worker.initialize('eng');
-                const { data: { text } } = await worker.recognize(file);
+                const { data: { text } } = await worker.recognize(imageData);
                 await worker.terminate();
 
                 statusDiv.innerText = "✅ Ekstraksi selesai. Memilah data...";
-                console.log("Raw Teks:\n", text);
 
-                // Kustomisasi Parsing RegEx
-                let kode_barang = "";
-                let nama_barang = "";
-                let varian = "";
-
-                // Ekstrak 8 digit angka sebagai kode barang
+                let kode_barang = ""; let nama_barang = "";
+                
+                // Cari 8 digit angka
                 const kodeMatch = text.match(/\b\d{8}\b/);
                 if (kodeMatch) kode_barang = kodeMatch[0];
 
-                // Deteksi nama produk & varian berdasarkan keywords
                 const txtUpper = text.toUpperCase();
                 if (txtUpper.includes('CHICKEN SEASONING') || txtUpper.includes('AYAM')) {
-                    nama_barang = "Knorr Professional Chicken Seasoning Powder";
-                    varian = "Ayam";
+                    nama_barang = "Knorr Professional Chicken Seasoning Powder [Ayam]";
                 } else if (txtUpper.includes('BEEF') || txtUpper.includes('SAPI')) {
-                    nama_barang = "Knorr Professional Beef Seasoning Powder";
-                    varian = "Sapi";
+                    nama_barang = "Knorr Professional Beef Seasoning Powder [Sapi]";
                 } else if (txtUpper.includes('KNORR')) {
                     nama_barang = "Knorr Product (Varian Lain)";
                 }
 
-                // Masukkan hasil ke dalam form
                 if(kode_barang) document.getElementById('confKode').value = kode_barang;
-                if(nama_barang) {
-                    const fullName = varian ? `${nama_barang} [${varian}]` : nama_barang;
-                    document.getElementById('confNamaProd').value = fullName;
-                }
+                if(nama_barang) document.getElementById('confNamaProd').value = nama_barang;
 
                 statusDiv.innerText = "✨ Data siap disimpan ke Katalog!";
-                setTimeout(() => { statusDiv.innerText = ""; document.getElementById('cameraInput').value = ""; }, 4000);
+                setTimeout(() => statusDiv.innerText = "", 4000);
 
             } catch(err) {
+                statusDiv.innerText = "❌ Gagal memproses gambar. Coba lagi.";
                 console.error(err);
-                statusDiv.innerText = "❌ Gagal membaca gambar. Pastikan tulisan jelas.";
             }
-        });
+        }
 
-        // --- MASTER LOGIC ---
+        // --- 3. MASTER DATA LOGIC ---
         function saveMasterMesin() {
             const v = document.getElementById('confMesin').value.trim();
             if(v) { master.mesin.push(v); document.getElementById('confMesin').value = ''; renderConfig(); syncMaster(); }
@@ -208,70 +249,100 @@
             const k = document.getElementById('confKode').value, n = document.getElementById('confNamaProd').value, 
                   c = document.getElementById('confKap').value, t = document.getElementById('confTarget').value;
             if(k && n) { 
-                master.produk.push({ id: Date.now().toString(), kode: k, nama: n, kap: parseInt(c), target: parseInt(t) || 0 }); 
+                master.produk.push({ id: Date.now().toString(), kode: k, nama: n, kap: parseInt(c)||1, target: parseInt(t)||0 }); 
                 renderConfig(); syncMaster(); 
-                document.getElementById('confKode').value = '';
-                document.getElementById('confNamaProd').value = '';
-                document.getElementById('confKap').value = '';
-                document.getElementById('confTarget').value = '';
-                alert("SKU Berhasil Ditambahkan!");
-            } else {
-                alert("Kode dan Nama Produk wajib diisi!");
-            }
+                document.getElementById('confKode').value = ''; document.getElementById('confNamaProd').value = '';
+                document.getElementById('confKap').value = ''; document.getElementById('confTarget').value = '';
+                alert("SKU Tersimpan!");
+            } else { alert("Kode dan Nama Produk wajib diisi!"); }
         }
 
         function renderConfig() {
-            document.getElementById('listMesin').innerHTML = master.mesin.map((m, i) => `<li>${m} <span onclick="master.mesin.splice(${i},1);renderConfig();syncMaster();" style="color:red; cursor:pointer; margin-left:10px;">[X]</span></li>`).join('');
-            document.querySelector('#tableProduk tbody').innerHTML = master.produk.map((p, i) => `<tr><td>${p.kode}</td><td>${p.nama}</td><td>${p.target}</td><td><button class="btn-danger btn-sm" onclick="master.produk.splice(${i},1);renderConfig();syncMaster();">X</button></td></tr>`).join('');
+            document.getElementById('listMesin').innerHTML = master.mesin.map((m, i) => `<li>${m} <span onclick="master.mesin.splice(${i},1);renderConfig();syncMaster();" style="color:red; cursor:pointer; font-weight:bold;">[X]</span></li>`).join('');
+            document.querySelector('#tableProduk tbody').innerHTML = master.produk.map((p, i) => `<tr><td>${p.kode}</td><td style="text-align:left;">${p.nama}</td><td>${p.target}</td><td><button class="btn-danger btn-sm" onclick="master.produk.splice(${i},1);renderConfig();syncMaster();">X</button></td></tr>`).join('');
             document.getElementById('selectNewMachine').innerHTML = master.mesin.map(m => `<option value="${m}">${m}</option>`).join('');
         }
 
         function syncMaster() { dbOp('settings', 'put', { id: 'master', ...master }); }
 
-        // --- TRACKER LOGIC ---
+        function exportKatalogToCSV() {
+            if (!master.produk || master.produk.length === 0) return alert("Katalog Kosong.");
+            let csvContent = "Kode Barang,Nama Produk,Kapasitas Pallet,Target Produksi\n";
+            master.produk.forEach(p => {
+                let namaBersih = p.nama ? p.nama.replace(/"/g, '""') : "";
+                csvContent += `"${p.kode}","${namaBersih}","${p.kap}","${p.target}"\n`;
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `Data_SKU_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        }
+
+        // --- 4. TRACKER LINI LOGIC ---
         function addMachineBlock() {
             const mName = document.getElementById('selectNewMachine').value;
-            if(!mName) return alert("Pilih/Tambah Mesin di Setup dahulu!");
+            if(!mName) return alert("Pilih Mesin dahulu!");
             current.machines.push({ id: Date.now().toString(), type: mName, rows: [] });
             renderTracker();
         }
 
-        function addSkuToMachine(mId) {
+        function addSkuRow(mId) {
             const m = current.machines.find(x => x.id === mId);
-            const skuList = master.produk.map((p, idx) => `${idx + 1}. ${p.kode} - ${p.nama}`).join('\n');
-            const skuIdx = prompt("Ketik nomor urut SKU untuk ditambahkan:\n" + skuList);
-            
-            if(skuIdx && !isNaN(skuIdx) && skuIdx > 0 && skuIdx <= master.produk.length) {
-                const p = master.produk[skuIdx - 1];
-                m.rows.push({ id: Date.now().toString(), skuId: p.id, sisa: 0, baru: 0, kap: p.kap });
-                renderTracker();
-            }
+            m.rows.push({ id: Date.now().toString(), skuId: '', dinas: 'M', sisa: 0, baru: 0 });
+            renderTracker();
         }
 
         function renderTracker() {
             const cont = document.getElementById('mainContainer'); cont.innerHTML = '';
+            
             current.machines.forEach(m => {
                 let html = `<div class="machine-block">
-                    <div class="machine-header"><strong>${m.type}</strong> <button class="btn btn-danger btn-sm" onclick="current.machines=current.machines.filter(x=>x.id!=='${m.id}');renderTracker();">HAPUS LINI</button></div>
-                    <table><thead><tr><th>SKU</th><th>Sisa</th><th>Baru</th><th>Progress</th></tr></thead><tbody>`;
-                m.rows.forEach(r => {
-                    const p = master.produk.find(x => x.id === r.skuId) || {nama:'Data Dihapus', target: 1};
-                    const total = (r.sisa||0) + (r.baru||0);
-                    const full = Math.floor(total/(p.kap||1));
-                    const pct = Math.min((full/(p.target||1))*100, 100);
+                    <div class="machine-header">
+                        <strong>Lini: ${m.type}</strong> 
+                        <button class="btn btn-danger btn-sm" onclick="current.machines=current.machines.filter(x=>x.id!=='${m.id}');renderTracker();">HAPUS LINI</button>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr style="background: #f8f9fa;">
+                                    <th style="width: 5%;">No</th>
+                                    <th style="width: 35%;">Kode_material</th>
+                                    <th style="width: 20%;">Dinas (M/A/N)</th>
+                                    <th style="width: 15%;">Sisa</th>
+                                    <th style="width: 15%;">Baru</th>
+                                    <th style="width: 10%;">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                
+                m.rows.forEach((r, idx) => {
+                    let options = `<option value="">Pilih...</option>` + master.produk.map(p => `<option value="${p.id}" ${r.skuId === p.id ? 'selected' : ''}>${p.kode} - ${p.nama}</option>`).join('');
                     html += `<tr>
-                        <td style="text-align:left; font-size:0.8rem;">${p.nama}<br><small style="color:gray;">${p.kode}</small></td>
-                        <td><input type="number" value="${r.sisa}" onchange="r.sisa=parseInt(this.value);renderTracker();"></td>
-                        <td><input type="number" value="${r.baru}" onchange="r.baru=parseInt(this.value);renderTracker();"></td>
-                        <td><div class="progress-wrapper"><div class="progress-bar" style="width:${pct}%; background:${pct>=100?'#27ae60':'#e67e22'}"></div></div></td>
+                        <td>${idx + 1}</td>
+                        <td><select class="table-input" onchange="r.skuId=this.value;renderTracker();">${options}</select></td>
+                        <td>
+                            <select class="table-input" onchange="r.dinas=this.value;renderTracker();">
+                                <option value="M" ${r.dinas === 'M' ? 'selected' : ''}>M (Pagi)</option>
+                                <option value="A" ${r.dinas === 'A' ? 'selected' : ''}>A (Sore)</option>
+                                <option value="N" ${r.dinas === 'N' ? 'selected' : ''}>N (Malam)</option>
+                            </select>
+                        </td>
+                        <td><input type="number" class="table-input" value="${r.sisa}" onchange="r.sisa=parseInt(this.value)||0;renderTracker();"></td>
+                        <td><input type="number" class="table-input" value="${r.baru}" onchange="r.baru=parseInt(this.value)||0;renderTracker();"></td>
+                        <td><button class="btn-danger btn-sm" onclick="m.rows.splice(${idx}, 1);renderTracker();">X</button></td>
                     </tr>`;
                 });
-                html += `</tbody></table><button class="btn btn-outline btn-sm" style="margin-top:10px" onclick="addSkuToMachine('${m.id}')">+ TAMBAH SKU</button></div>`;
+                
+                html += `</tbody></table></div>
+                <button class="btn btn-outline btn-sm" style="margin-top:15px;" onclick="addSkuRow('${m.id}')">+ TAMBAH BARIS</button>
+                </div>`;
                 cont.innerHTML += html;
             });
             dbOp('tracker', 'put', { id: 'active', ...current });
         }
 
+        // --- 5. UI CONTROLLER & DASHBOARD ---
         function switchPage(p) {
             ['dashboardPage','trackerPage','configPage','historyPage'].forEach(id => document.getElementById(id).classList.remove('active-page'));
             document.getElementById(p).classList.add('active-page');
@@ -286,14 +357,18 @@
                 type: 'bar',
                 data: {
                     labels: last7.map(h => h.date.split(',')[0]),
-                    datasets: [{ label: 'Total Pallet Selesai', data: last7.map(h => h.data.reduce((a,b)=>a+b.rows.reduce((c,d)=>c+Math.floor((d.sisa+d.baru)/d.kap),0),0)), backgroundColor: '#2c3e50' }]
+                    datasets: [{ label: 'Total Barang Selesai (Pallet)', data: last7.map(h => h.data.reduce((a,b)=>a+b.rows.reduce((c,d)=>c+d.sisa+d.baru,0),0)), backgroundColor: '#2c3e50' }]
                 },
                 options: { maintainAspectRatio: false }
             });
+            
+            // Update UI History
+            const histList = document.getElementById('historyList');
+            histList.innerHTML = history.length ? history.map(h => `<div style="padding:10px; border-bottom:1px solid #ddd;"><strong>${h.date}</strong> - Tersimpan ${h.data.length} Lini</div>`).join('') : 'Belum ada arsip.';
         }
 
         async function archiveAndSync() {
-            if(!current.machines.length) return;
+            if(!current.machines.length) return alert("Tidak ada data untuk disimpan.");
             const archive = { timestamp: Date.now(), date: new Date().toLocaleString('id-ID'), data: current.machines };
             await dbOp('history', 'put', archive);
             alert("Berhasil Diarsipkan ke History!");
@@ -302,13 +377,9 @@
             updateDashboard();
         }
 
-        // Pendaftaran Service Worker PWA
+        // --- 6. REGISTRASI SERVICE WORKER ---
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('SW Registered', reg))
-                .catch(err => console.log('SW Reg. Failed', err));
-            });
+            window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(err => console.error(err)));
         }
     </script>
 </body>
